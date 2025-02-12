@@ -16,7 +16,7 @@ from PySide6.QtGui import (QAction, QBrush, QColor, QConicalGradient,
     QIcon, QImage, QKeySequence, QLinearGradient,
     QPainter, QPalette, QPixmap, QRadialGradient,
     QTransform)
-from PySide6.QtWidgets import (QApplication, QCheckBox, QFontComboBox, QGridLayout,
+from PySide6.QtWidgets import (QApplication, QCheckBox, QComboBox, QGridLayout,
     QGroupBox, QHBoxLayout, QLabel, QMainWindow,
     QMenu, QMenuBar, QProgressBar, QPushButton,
     QScrollArea, QSizePolicy, QSpacerItem, QStatusBar,
@@ -49,7 +49,7 @@ class Ui_MainWindow(object):
         self.groupBox_statistics.setFont(font)
         self.verticalLayoutWidget = QWidget(self.groupBox_statistics)
         self.verticalLayoutWidget.setObjectName(u"verticalLayoutWidget")
-        self.verticalLayoutWidget.setGeometry(QRect(10, 30, 831, 51))
+        self.verticalLayoutWidget.setGeometry(QRect(10, 30, 621, 51))
         self.verticalLayout = QVBoxLayout(self.verticalLayoutWidget)
         self.verticalLayout.setObjectName(u"verticalLayout")
         self.verticalLayout.setContentsMargins(0, 0, 0, 0)
@@ -68,14 +68,11 @@ class Ui_MainWindow(object):
 
         self.horizontalLayout_2.addWidget(self.label_1)
 
-        self.fontComboBox = QFontComboBox(self.verticalLayoutWidget)
-        self.fontComboBox.setObjectName(u"fontComboBox")
-        font2 = QFont()
-        font2.setPointSize(11)
-        font2.setBold(True)
-        self.fontComboBox.setFont(font2)
+        self.comboBox = QComboBox(self.verticalLayoutWidget)
+        self.comboBox.setObjectName(u"comboBox")
+        self.comboBox.setFont(font1)
 
-        self.horizontalLayout_2.addWidget(self.fontComboBox)
+        self.horizontalLayout_2.addWidget(self.comboBox)
 
         self.horizontalSpacer = QSpacerItem(40, 20, QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Minimum)
 
@@ -139,7 +136,7 @@ class Ui_MainWindow(object):
         MainWindow.setCentralWidget(self.centralwidget)
         self.menubar = QMenuBar(MainWindow)
         self.menubar.setObjectName(u"menubar")
-        self.menubar.setGeometry(QRect(0, 0, 900, 22))
+        self.menubar.setGeometry(QRect(0, 0, 900, 24))
         self.menu = QMenu(self.menubar)
         self.menu.setObjectName(u"menu")
         self.menu_2 = QMenu(self.menubar)
