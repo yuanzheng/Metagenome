@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>900</width>
-    <height>796</height>
+    <width>901</width>
+    <height>629</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -20,13 +20,13 @@
       <x>10</x>
       <y>10</y>
       <width>881</width>
-      <height>731</height>
+      <height>561</height>
      </rect>
     </property>
     <property name="currentIndex">
-     <number>0</number>
+     <number>1</number>
     </property>
-    <widget class="QWidget" name="tab">
+    <widget class="QWidget" name="tab_1">
      <attribute name="title">
       <string>测序数据</string>
      </attribute>
@@ -34,9 +34,9 @@
       <property name="geometry">
        <rect>
         <x>10</x>
-        <y>20</y>
+        <y>10</y>
         <width>851</width>
-        <height>331</height>
+        <height>511</height>
        </rect>
       </property>
       <property name="font">
@@ -53,7 +53,7 @@
         <rect>
          <x>10</x>
          <y>30</y>
-         <width>831</width>
+         <width>621</width>
          <height>51</height>
         </rect>
        </property>
@@ -85,10 +85,10 @@
              </widget>
             </item>
             <item>
-             <widget class="QFontComboBox" name="fontComboBox">
+             <widget class="QComboBox" name="comboBox">
               <property name="font">
                <font>
-                <pointsize>11</pointsize>
+                <pointsize>12</pointsize>
                 <bold>true</bold>
                </font>
               </property>
@@ -145,7 +145,7 @@
          <x>10</x>
          <y>80</y>
          <width>831</width>
-         <height>241</height>
+         <height>371</height>
         </rect>
        </property>
        <layout class="QGridLayout" name="gridLayout_2">
@@ -160,7 +160,7 @@
              <x>0</x>
              <y>0</y>
              <width>734</width>
-             <height>187</height>
+             <height>317</height>
             </rect>
            </property>
           </widget>
@@ -195,6 +195,89 @@
     </widget>
     <widget class="QWidget" name="tab_2">
      <attribute name="title">
+      <string>FastQC Report</string>
+     </attribute>
+     <widget class="QWidget" name="verticalLayoutWidget_2">
+      <property name="geometry">
+       <rect>
+        <x>10</x>
+        <y>10</y>
+        <width>231</width>
+        <height>521</height>
+       </rect>
+      </property>
+      <layout class="QVBoxLayout" name="verticalLayout_3">
+       <item>
+        <widget class="QPushButton" name="pushButton_fastQC_Report">
+         <property name="text">
+          <string>生成FastQC Report</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QProgressBar" name="progressBar_2">
+         <property name="value">
+          <number>24</number>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QRadioButton" name="radioButton_base_seq_quality">
+         <property name="enabled">
+          <bool>false</bool>
+         </property>
+         <property name="font">
+          <font>
+           <pointsize>12</pointsize>
+          </font>
+         </property>
+         <property name="text">
+          <string>Per base sequence quality</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QRadioButton" name="radioButton_base_seq_content">
+         <property name="enabled">
+          <bool>false</bool>
+         </property>
+         <property name="font">
+          <font>
+           <pointsize>12</pointsize>
+          </font>
+         </property>
+         <property name="text">
+          <string>Per base sequence content</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QListWidget" name="listWidget"/>
+       </item>
+      </layout>
+     </widget>
+     <widget class="QWidget" name="verticalLayoutWidget_3">
+      <property name="geometry">
+       <rect>
+        <x>250</x>
+        <y>10</y>
+        <width>621</width>
+        <height>521</height>
+       </rect>
+      </property>
+      <layout class="QVBoxLayout" name="verticalLayout_4">
+       <item>
+        <widget class="QLabel" name="label">
+         <property name="text">
+          <string>Image  will appear here</string>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </widget>
+    </widget>
+    <widget class="QWidget" name="tab_3">
+     <attribute name="title">
       <string>Trim质控</string>
      </attribute>
     </widget>
@@ -205,7 +288,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>900</width>
+     <width>901</width>
      <height>22</height>
     </rect>
    </property>

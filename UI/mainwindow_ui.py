@@ -17,16 +17,17 @@ from PySide6.QtGui import (QAction, QBrush, QColor, QConicalGradient,
     QPainter, QPalette, QPixmap, QRadialGradient,
     QTransform)
 from PySide6.QtWidgets import (QApplication, QCheckBox, QComboBox, QGridLayout,
-    QGroupBox, QHBoxLayout, QLabel, QMainWindow,
-    QMenu, QMenuBar, QProgressBar, QPushButton,
-    QScrollArea, QSizePolicy, QSpacerItem, QStatusBar,
-    QTabWidget, QVBoxLayout, QWidget)
+    QGroupBox, QHBoxLayout, QLabel, QListWidget,
+    QListWidgetItem, QMainWindow, QMenu, QMenuBar,
+    QProgressBar, QPushButton, QRadioButton, QScrollArea,
+    QSizePolicy, QSpacerItem, QStatusBar, QTabWidget,
+    QVBoxLayout, QWidget)
 
 class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
         if not MainWindow.objectName():
             MainWindow.setObjectName(u"MainWindow")
-        MainWindow.resize(900, 796)
+        MainWindow.resize(901, 629)
         self.actionSetup = QAction(MainWindow)
         self.actionSetup.setObjectName(u"actionSetup")
         self.actionClear = QAction(MainWindow)
@@ -37,12 +38,12 @@ class Ui_MainWindow(object):
         self.centralwidget.setObjectName(u"centralwidget")
         self.tabWidget = QTabWidget(self.centralwidget)
         self.tabWidget.setObjectName(u"tabWidget")
-        self.tabWidget.setGeometry(QRect(10, 10, 881, 731))
-        self.tab = QWidget()
-        self.tab.setObjectName(u"tab")
-        self.groupBox_statistics = QGroupBox(self.tab)
+        self.tabWidget.setGeometry(QRect(10, 10, 881, 561))
+        self.tab_1 = QWidget()
+        self.tab_1.setObjectName(u"tab_1")
+        self.groupBox_statistics = QGroupBox(self.tab_1)
         self.groupBox_statistics.setObjectName(u"groupBox_statistics")
-        self.groupBox_statistics.setGeometry(QRect(10, 20, 851, 331))
+        self.groupBox_statistics.setGeometry(QRect(10, 10, 851, 511))
         font = QFont()
         font.setPointSize(14)
         font.setBold(True)
@@ -98,7 +99,7 @@ class Ui_MainWindow(object):
 
         self.gridLayoutWidget = QWidget(self.groupBox_statistics)
         self.gridLayoutWidget.setObjectName(u"gridLayoutWidget")
-        self.gridLayoutWidget.setGeometry(QRect(10, 80, 831, 241))
+        self.gridLayoutWidget.setGeometry(QRect(10, 80, 831, 371))
         self.gridLayout_2 = QGridLayout(self.gridLayoutWidget)
         self.gridLayout_2.setObjectName(u"gridLayout_2")
         self.gridLayout_2.setContentsMargins(0, 0, 0, 0)
@@ -107,7 +108,7 @@ class Ui_MainWindow(object):
         self.scrollArea.setWidgetResizable(True)
         self.scrollAreaWidgetContents = QWidget()
         self.scrollAreaWidgetContents.setObjectName(u"scrollAreaWidgetContents")
-        self.scrollAreaWidgetContents.setGeometry(QRect(0, 0, 734, 187))
+        self.scrollAreaWidgetContents.setGeometry(QRect(0, 0, 734, 317))
         self.scrollArea.setWidget(self.scrollAreaWidgetContents)
 
         self.gridLayout_2.addWidget(self.scrollArea, 2, 1, 1, 1)
@@ -129,14 +130,66 @@ class Ui_MainWindow(object):
 
         self.gridLayout_2.addWidget(self.button_analysis_start, 1, 0, 1, 1)
 
-        self.tabWidget.addTab(self.tab, "")
+        self.tabWidget.addTab(self.tab_1, "")
         self.tab_2 = QWidget()
         self.tab_2.setObjectName(u"tab_2")
+        self.verticalLayoutWidget_2 = QWidget(self.tab_2)
+        self.verticalLayoutWidget_2.setObjectName(u"verticalLayoutWidget_2")
+        self.verticalLayoutWidget_2.setGeometry(QRect(10, 10, 231, 521))
+        self.verticalLayout_3 = QVBoxLayout(self.verticalLayoutWidget_2)
+        self.verticalLayout_3.setObjectName(u"verticalLayout_3")
+        self.verticalLayout_3.setContentsMargins(0, 0, 0, 0)
+        self.pushButton_fastQC_Report = QPushButton(self.verticalLayoutWidget_2)
+        self.pushButton_fastQC_Report.setObjectName(u"pushButton_fastQC_Report")
+
+        self.verticalLayout_3.addWidget(self.pushButton_fastQC_Report)
+
+        self.progressBar_2 = QProgressBar(self.verticalLayoutWidget_2)
+        self.progressBar_2.setObjectName(u"progressBar_2")
+        self.progressBar_2.setValue(24)
+
+        self.verticalLayout_3.addWidget(self.progressBar_2)
+
+        self.radioButton_base_seq_quality = QRadioButton(self.verticalLayoutWidget_2)
+        self.radioButton_base_seq_quality.setObjectName(u"radioButton_base_seq_quality")
+        self.radioButton_base_seq_quality.setEnabled(False)
+        font2 = QFont()
+        font2.setPointSize(12)
+        self.radioButton_base_seq_quality.setFont(font2)
+
+        self.verticalLayout_3.addWidget(self.radioButton_base_seq_quality)
+
+        self.radioButton_base_seq_content = QRadioButton(self.verticalLayoutWidget_2)
+        self.radioButton_base_seq_content.setObjectName(u"radioButton_base_seq_content")
+        self.radioButton_base_seq_content.setEnabled(False)
+        self.radioButton_base_seq_content.setFont(font2)
+
+        self.verticalLayout_3.addWidget(self.radioButton_base_seq_content)
+
+        self.listWidget = QListWidget(self.verticalLayoutWidget_2)
+        self.listWidget.setObjectName(u"listWidget")
+
+        self.verticalLayout_3.addWidget(self.listWidget)
+
+        self.verticalLayoutWidget_3 = QWidget(self.tab_2)
+        self.verticalLayoutWidget_3.setObjectName(u"verticalLayoutWidget_3")
+        self.verticalLayoutWidget_3.setGeometry(QRect(250, 10, 621, 521))
+        self.verticalLayout_4 = QVBoxLayout(self.verticalLayoutWidget_3)
+        self.verticalLayout_4.setObjectName(u"verticalLayout_4")
+        self.verticalLayout_4.setContentsMargins(0, 0, 0, 0)
+        self.label = QLabel(self.verticalLayoutWidget_3)
+        self.label.setObjectName(u"label")
+
+        self.verticalLayout_4.addWidget(self.label)
+
         self.tabWidget.addTab(self.tab_2, "")
+        self.tab_3 = QWidget()
+        self.tab_3.setObjectName(u"tab_3")
+        self.tabWidget.addTab(self.tab_3, "")
         MainWindow.setCentralWidget(self.centralwidget)
         self.menubar = QMenuBar(MainWindow)
         self.menubar.setObjectName(u"menubar")
-        self.menubar.setGeometry(QRect(0, 0, 900, 24))
+        self.menubar.setGeometry(QRect(0, 0, 901, 22))
         self.menu = QMenu(self.menubar)
         self.menu.setObjectName(u"menu")
         self.menu_2 = QMenu(self.menubar)
@@ -154,7 +207,7 @@ class Ui_MainWindow(object):
 
         self.retranslateUi(MainWindow)
 
-        self.tabWidget.setCurrentIndex(0)
+        self.tabWidget.setCurrentIndex(1)
 
 
         QMetaObject.connectSlotsByName(MainWindow)
@@ -170,8 +223,13 @@ class Ui_MainWindow(object):
         self.checkBox_reads.setText(QCoreApplication.translate("MainWindow", u"Total Reads", None))
         self.checkBox_bases.setText(QCoreApplication.translate("MainWindow", u"Total Bases", None))
         self.button_analysis_start.setText(QCoreApplication.translate("MainWindow", u"\u5f00\u59cb\u5206\u6790", None))
-        self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab), QCoreApplication.translate("MainWindow", u"\u6d4b\u5e8f\u6570\u636e", None))
-        self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab_2), QCoreApplication.translate("MainWindow", u"Trim\u8d28\u63a7", None))
+        self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab_1), QCoreApplication.translate("MainWindow", u"\u6d4b\u5e8f\u6570\u636e", None))
+        self.pushButton_fastQC_Report.setText(QCoreApplication.translate("MainWindow", u"\u751f\u6210FastQC Report", None))
+        self.radioButton_base_seq_quality.setText(QCoreApplication.translate("MainWindow", u"Per base sequence quality", None))
+        self.radioButton_base_seq_content.setText(QCoreApplication.translate("MainWindow", u"Per base sequence content", None))
+        self.label.setText(QCoreApplication.translate("MainWindow", u"Image  will appear here", None))
+        self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab_2), QCoreApplication.translate("MainWindow", u"FastQC Report", None))
+        self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab_3), QCoreApplication.translate("MainWindow", u"Trim\u8d28\u63a7", None))
         self.menu.setTitle(QCoreApplication.translate("MainWindow", u"\u6587\u4ef6", None))
         self.menu_2.setTitle(QCoreApplication.translate("MainWindow", u"\u5de5\u5177", None))
     # retranslateUi
