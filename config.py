@@ -1,0 +1,3 @@
+fastqcReportDirectory = ""
+fastQDataDirectory = ""
+fastQParserExefile = ""

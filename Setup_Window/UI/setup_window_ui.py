@@ -23,7 +23,7 @@ class Ui_SetupForm(object):
     def setupUi(self, SetupForm):
         if not SetupForm.objectName():
             SetupForm.setObjectName(u"SetupForm")
-        SetupForm.resize(666, 185)
+        SetupForm.resize(666, 187)
         font = QFont()
         font.setPointSize(12)
         SetupForm.setFont(font)
@@ -49,13 +49,13 @@ class Ui_SetupForm(object):
         self.groupBox.setCheckable(False)
         self.gridLayout_4 = QGridLayout(self.groupBox)
         self.gridLayout_4.setObjectName(u"gridLayout_4")
-        self.lineEdit_2 = QLineEdit(self.groupBox)
-        self.lineEdit_2.setObjectName(u"lineEdit_2")
+        self.lineEdit_fastQParser = QLineEdit(self.groupBox)
+        self.lineEdit_fastQParser.setObjectName(u"lineEdit_fastQParser")
         font1 = QFont()
         font1.setPointSize(11)
-        self.lineEdit_2.setFont(font1)
+        self.lineEdit_fastQParser.setFont(font1)
 
-        self.gridLayout_4.addWidget(self.lineEdit_2, 4, 1, 1, 1)
+        self.gridLayout_4.addWidget(self.lineEdit_fastQParser, 4, 1, 1, 1)
 
         self.label_2 = QLabel(self.groupBox)
         self.label_2.setObjectName(u"label_2")
@@ -63,21 +63,21 @@ class Ui_SetupForm(object):
 
         self.gridLayout_4.addWidget(self.label_2, 4, 0, 1, 1)
 
-        self.lineEdit_3 = QLineEdit(self.groupBox)
-        self.lineEdit_3.setObjectName(u"lineEdit_3")
+        self.lineEdit_fastQCReportDirectory = QLineEdit(self.groupBox)
+        self.lineEdit_fastQCReportDirectory.setObjectName(u"lineEdit_fastQCReportDirectory")
         sizePolicy = QSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Fixed)
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
-        sizePolicy.setHeightForWidth(self.lineEdit_3.sizePolicy().hasHeightForWidth())
-        self.lineEdit_3.setSizePolicy(sizePolicy)
-        self.lineEdit_3.setSizeIncrement(QSize(0, 0))
+        sizePolicy.setHeightForWidth(self.lineEdit_fastQCReportDirectory.sizePolicy().hasHeightForWidth())
+        self.lineEdit_fastQCReportDirectory.setSizePolicy(sizePolicy)
+        self.lineEdit_fastQCReportDirectory.setSizeIncrement(QSize(0, 0))
         font2 = QFont()
         font2.setPointSize(11)
         font2.setBold(False)
-        self.lineEdit_3.setFont(font2)
-        self.lineEdit_3.setLayoutDirection(Qt.LayoutDirection.LeftToRight)
+        self.lineEdit_fastQCReportDirectory.setFont(font2)
+        self.lineEdit_fastQCReportDirectory.setLayoutDirection(Qt.LayoutDirection.LeftToRight)
 
-        self.gridLayout_4.addWidget(self.lineEdit_3, 9, 1, 1, 1)
+        self.gridLayout_4.addWidget(self.lineEdit_fastQCReportDirectory, 9, 1, 1, 1)
 
         self.label_3 = QLabel(self.groupBox)
         self.label_3.setObjectName(u"label_3")
@@ -91,30 +91,30 @@ class Ui_SetupForm(object):
 
         self.gridLayout_4.addWidget(self.label, 0, 0, 1, 1)
 
-        self.pushButton_2 = QPushButton(self.groupBox)
-        self.pushButton_2.setObjectName(u"pushButton_2")
-        self.pushButton_2.setFont(font1)
+        self.pushButton_fastQParser = QPushButton(self.groupBox)
+        self.pushButton_fastQParser.setObjectName(u"pushButton_fastQParser")
+        self.pushButton_fastQParser.setFont(font1)
 
-        self.gridLayout_4.addWidget(self.pushButton_2, 4, 2, 1, 1)
+        self.gridLayout_4.addWidget(self.pushButton_fastQParser, 4, 2, 1, 1)
 
-        self.lineEdit_1 = QLineEdit(self.groupBox)
-        self.lineEdit_1.setObjectName(u"lineEdit_1")
-        self.lineEdit_1.setMaximumSize(QSize(16777215, 16777215))
-        self.lineEdit_1.setFont(font1)
+        self.lineEdit_fastQDataDirectory = QLineEdit(self.groupBox)
+        self.lineEdit_fastQDataDirectory.setObjectName(u"lineEdit_fastQDataDirectory")
+        self.lineEdit_fastQDataDirectory.setMaximumSize(QSize(16777215, 16777215))
+        self.lineEdit_fastQDataDirectory.setFont(font1)
 
-        self.gridLayout_4.addWidget(self.lineEdit_1, 0, 1, 1, 1)
+        self.gridLayout_4.addWidget(self.lineEdit_fastQDataDirectory, 0, 1, 1, 1)
 
-        self.pushButton_1 = QPushButton(self.groupBox)
-        self.pushButton_1.setObjectName(u"pushButton_1")
-        self.pushButton_1.setFont(font1)
+        self.pushButton_searchFastQDataDirectory = QPushButton(self.groupBox)
+        self.pushButton_searchFastQDataDirectory.setObjectName(u"pushButton_searchFastQDataDirectory")
+        self.pushButton_searchFastQDataDirectory.setFont(font1)
 
-        self.gridLayout_4.addWidget(self.pushButton_1, 0, 2, 1, 1)
+        self.gridLayout_4.addWidget(self.pushButton_searchFastQDataDirectory, 0, 2, 1, 1)
 
-        self.pushButton_3 = QPushButton(self.groupBox)
-        self.pushButton_3.setObjectName(u"pushButton_3")
-        self.pushButton_3.setFont(font1)
+        self.pushButton_fastQCDirectory = QPushButton(self.groupBox)
+        self.pushButton_fastQCDirectory.setObjectName(u"pushButton_fastQCDirectory")
+        self.pushButton_fastQCDirectory.setFont(font1)
 
-        self.gridLayout_4.addWidget(self.pushButton_3, 9, 2, 1, 1)
+        self.gridLayout_4.addWidget(self.pushButton_fastQCDirectory, 9, 2, 1, 1)
 
 
         self.gridLayout.addWidget(self.groupBox, 0, 0, 1, 3)
@@ -133,8 +133,8 @@ class Ui_SetupForm(object):
         self.label_2.setText(QCoreApplication.translate("SetupForm", u"FastQ \u89e3\u6790\u5668", None))
         self.label_3.setText(QCoreApplication.translate("SetupForm", u"FastQC Report \u8f93\u51fa\u76ee\u5f55", None))
         self.label.setText(QCoreApplication.translate("SetupForm", u"\u539f\u59cb\u6570\u636e\u76ee\u5f55", None))
-        self.pushButton_2.setText(QCoreApplication.translate("SetupForm", u"\u67e5\u627e...", None))
-        self.pushButton_1.setText(QCoreApplication.translate("SetupForm", u"\u67e5\u627e...", None))
-        self.pushButton_3.setText(QCoreApplication.translate("SetupForm", u"\u67e5\u627e...", None))
+        self.pushButton_fastQParser.setText(QCoreApplication.translate("SetupForm", u"\u67e5\u627e...", None))
+        self.pushButton_searchFastQDataDirectory.setText(QCoreApplication.translate("SetupForm", u"\u67e5\u627e...", None))
+        self.pushButton_fastQCDirectory.setText(QCoreApplication.translate("SetupForm", u"\u67e5\u627e...", None))
     # retranslateUi
 

@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>666</width>
-    <height>185</height>
+    <height>187</height>
    </rect>
   </property>
   <property name="font">
@@ -59,7 +59,7 @@
      </property>
      <layout class="QGridLayout" name="gridLayout_4">
       <item row="4" column="1">
-       <widget class="QLineEdit" name="lineEdit_2">
+       <widget class="QLineEdit" name="lineEdit_fastQParser">
         <property name="font">
          <font>
           <pointsize>11</pointsize>
@@ -80,7 +80,7 @@
        </widget>
       </item>
       <item row="9" column="1">
-       <widget class="QLineEdit" name="lineEdit_3">
+       <widget class="QLineEdit" name="lineEdit_fastQCReportDirectory">
         <property name="sizePolicy">
          <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
           <horstretch>0</horstretch>
@@ -129,7 +129,7 @@
        </widget>
       </item>
       <item row="4" column="2">
-       <widget class="QPushButton" name="pushButton_2">
+       <widget class="QPushButton" name="pushButton_fastQParser">
         <property name="font">
          <font>
           <pointsize>11</pointsize>
@@ -141,7 +141,7 @@
        </widget>
       </item>
       <item row="0" column="1">
-       <widget class="QLineEdit" name="lineEdit_1">
+       <widget class="QLineEdit" name="lineEdit_fastQDataDirectory">
         <property name="maximumSize">
          <size>
           <width>16777215</width>
@@ -156,7 +156,7 @@
        </widget>
       </item>
       <item row="0" column="2">
-       <widget class="QPushButton" name="pushButton_1">
+       <widget class="QPushButton" name="pushButton_searchFastQDataDirectory">
         <property name="font">
          <font>
           <pointsize>11</pointsize>
@@ -168,7 +168,7 @@
        </widget>
       </item>
       <item row="9" column="2">
-       <widget class="QPushButton" name="pushButton_3">
+       <widget class="QPushButton" name="pushButton_fastQCDirectory">
         <property name="font">
          <font>
           <pointsize>11</pointsize>
