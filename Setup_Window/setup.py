@@ -1,5 +1,6 @@
 import sys
 import config
+import logging
 from PySide6.QtCore import Qt, Slot
 from PySide6.QtWidgets import QWidget, QApplication, QFileDialog
 
@@ -8,6 +9,7 @@ from Setup_Window.UI.setup_window_ui import Ui_SetupForm
 class SetupWindow(QWidget, Ui_SetupForm):
     def __init__(self):
         super().__init__()
+        self.logger = logging.getLogger(self.__class__.__name__)
         self.setupUi(self)
         self.setWindowFlag(Qt.WindowType.WindowStaysOnTopHint, True)
 
@@ -23,7 +25,7 @@ class SetupWindow(QWidget, Ui_SetupForm):
         self.pushButton_fastQParser.clicked.connect(self.getFastQParser)
        
     def saveSetupWindow(self):
-        print("Save it")
+        self.logger.info("Save the setup window")
         global fastQDataDirectory 
         config.fastQDataDirectory = self.lineEdit_fastQDataDirectory.text()
 
@@ -32,23 +34,15 @@ class SetupWindow(QWidget, Ui_SetupForm):
 
         global fastQParserExefile
         config.fastQParserExefile = self.lineEdit_fastQParser.text()
+        self.logger.debug("Setup, fastQ Data Directory: %s\n" +
+                          "fastqc Report Directory: %s\nand " +
+                          "fastQ Parser ExE file: %s", 
+                          config.fastQDataDirectory, 
+                          config.fastqcReportDirectory,
+                          config.fastQParserExefile)
         self.close()
 
     def cancelSetupWindow(self):
-        '''
-        global fastQDataDirectory 
-        config.fastQDataDirectory = ""
-        self.lineEdit_fastQDataDirectory.clear()
-    
-
-        global fastqcReportDirectory 
-        config.fastqcReportDirectory = ""
-        self.lineEdit_fastQCReportDirectory.clear()
-
-        global fastQParserExefile
-        config.fastQParserExefile = ""
-        self.lineEdit_fastQParser.clear()
-        '''
         self.close()
 
 
