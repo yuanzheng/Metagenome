@@ -9,7 +9,7 @@ setup_logger()
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)
-    MainWindow = MainWindow(app)
+    MainWindow = MainWindow()
     MainWindow.show()
     sys.exit(app.exec())
 
