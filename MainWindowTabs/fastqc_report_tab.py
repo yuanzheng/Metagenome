@@ -41,16 +41,17 @@ class FastQCReportTab:
                 self.logger.error("No .fastq.gz files found in " + config.fastQDataDirectory + "\n")
                 return
             # 启动线程
-            self.thread = FastQCThread(input_files, self.output_dir)
-            self.thread.output_signal.connect(self.update_output)
+            thread = FastQCThread(input_files, self.output_dir)
+            thread.output_signal.connect(self.update_output)
             # Update progress bar
-            self.thread.progress_signal.connect(self.progress_bar.setValue)
+            thread.progress_signal.connect(self.progress_bar.setValue)
             # Add zip file name to self.listWidget_fastqcreport
             # Enable self.radioButton_base_seq_quality
             # Enable self.radioButton_base_seq_content
-            self.thread.finished_signal.connect(self.show_new_files)
-            self.thread.start()
-            # Update config.fastqcReportDirectory with the newly created directory name
+            thread.finished_signal.connect(self.show_new_files)
+            thread.start()
+            config.threads.append(thread)            
+
 
     def update_output(self, text):
         self.logger.info(text)

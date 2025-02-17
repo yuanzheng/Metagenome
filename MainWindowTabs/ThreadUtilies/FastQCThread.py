@@ -20,6 +20,8 @@ class FastQCThread(QThread):
         self.task_counter = 0
         self.proccess_percentage = 0
         self.fastqc_path = self.find_fastqc()  # 动态查找 fastqc 路径
+        self.process = None  # 保存 subprocess.Popen 对象
+
 
     def find_fastqc(self):
         # 优先检查常见路径（Windows/macOS/Linux）
@@ -48,7 +50,7 @@ class FastQCThread(QThread):
             ] + self.input_files
 
             # 启动进程
-            process = subprocess.Popen(
+            self.process = subprocess.Popen(
                 command,
                 stdout=subprocess.PIPE,
                 stderr=subprocess.STDOUT,  # 合并 stdout 和 stderr
@@ -57,16 +59,16 @@ class FastQCThread(QThread):
 
             # 实时捕获输出
             while True:
-                output = process.stdout.readline()
-                if output == '' and process.poll() is not None:
+                output = self.process.stdout.readline()
+                if output == '' and self.process.poll() is not None:
                     break
                 if output:
                     self.output_signal.emit(output.strip())
                     self.update_progress_bar(output.strip())
 
             # 检查返回值
-            if process.returncode != 0:
-                self.output_signal.emit(f"Error: FastQC exited with code {process.returncode}")
+            if self.process.returncode != 0:
+                self.output_signal.emit(f"Error: FastQC exited with code {self.process.returncode}")
             else:
                 # finished FastQC analysis successfully
                 self.finished_signal.emit("Successfull")  # 发送新文件列表
@@ -97,3 +99,12 @@ class FastQCThread(QThread):
             if self.proccess_percentage < percentage:
                 self.proccess_percentage = percentage
                 self.progress_signal.emit(self.proccess_percentage)
+
+    def stop(self):
+        """
+        终止 fastqc 进程
+        """
+        self.logger.info("Terminate FastQC process!")
+        if self.process and self.process.poll() is None:  # 检查进程是否仍在运行
+            self.process.terminate()  # 终止进程
+            self.process.wait()  # 等待进程结束

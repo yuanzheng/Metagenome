@@ -23,6 +23,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         # Initailze tab FastQC Report
         self.fastQC_tab_logic = FastQCReportTab(self.tab_fastqcreport)
         self.pushButton_fastQC_Report.clicked.connect(self.fastQC_tab_logic.generateFastQCReport)
+    
         # self.pushButton_fastQC_Report.clicked.connect(self.getWorkDirectory)
         # self.listWidget.currentRowChanged.connect(self.displayImageForFastQCReport)
 
@@ -30,42 +31,15 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.setup = SetupWindow()
         self.setup.show()
 
-    '''
-    def fileFilter(self, files, extensions):
-        results = []
-        self.logger.debug("all files in directory: %s", files)
-        for file in files:
-            for ext in extensions:
-                if file.endswith(ext):
-                    results.append(file)
-        return results
-    
-    def getWorkDirectory(self):
-        self.logger.debug("Check global variable, fastqcReportDirectory: %s", config.fastqcReportDirectory)
-        self.logger.debug("Check global variable, fastQDataDirectory: %s", config.fastQDataDirectory)
-        self.logger.debug("Check global variable, fastQParserExefile: %s", config.fastQParserExefile)
-        extensions = ['.html']
-        try:
-            if config.fastqcReportDirectory != "":
-                fileNames = self.fileFilter(os.listdir(config.fastqcReportDirectory), extensions)
-                self.listWidget.clear()
-                for fileName in fileNames:
-                    self.listWidget.addItem(fileName)
-            self.logger.debug("Number of items: %s", self.listWidget.count())
-            
-            if self.listWidget.count() > 0:
-                self.radioButton_base_seq_quality.setEnabled(True)
-                self.radioButton_base_seq_quality.setChecked(True)
-                self.radioButton_base_seq_content.setEnabled(True)
-        except Exception as e:
-            self.logger.exception("An error occurred while selecting a directory: %s", e)
-
-    def displayImageForFastQCReport(self):
-        if self.listWidget.currentRow() >= 0:
-            fileName = self.listWidget.currentItem().text()
-            self.logger.debug("display image for file: %s", fileName)
-
-    '''
-
-
-
+    def closeEvent(self, event):
+        """
+        重写关闭事件，确保关闭窗口时终止 fastqc 进程
+        """
+        self.logger.info("Shut down the running thread")
+        for thread in config.threads:
+            if thread.isRunning():
+                thread.stop()  # 终止 每一个 进程
+                thread.quit()  # 终止线程
+                thread.wait()  # 等待线程结束
+        event.accept()  # 接受关闭事件
+        
