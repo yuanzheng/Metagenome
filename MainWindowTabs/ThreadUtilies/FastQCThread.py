@@ -66,8 +66,8 @@ class FastQCThread(QThread):
                     self.output_signal.emit(output.strip())
                     self.update_progress_bar(output.strip())
 
-            # 检查返回值
-            if self.process.returncode != 0:
+            # 检查返回值, fastqc 进程被请求终止返回143
+            if self.process.returncode != 0 and self.process.returncode != 143:
                 self.output_signal.emit(f"Error: FastQC exited with code {self.process.returncode}")
             else:
                 # finished FastQC analysis successfully

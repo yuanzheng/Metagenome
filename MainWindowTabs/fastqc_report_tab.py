@@ -15,7 +15,7 @@ class FastQCReportTab:
         self.logger = logging.getLogger(self.__class__.__name__)
         self.tab_widget = tab_widget
         self.output_dir = ""
-        self.button_generate_report = tab_widget.findChild(QPushButton, "pushButton_fastQC_Report")
+        # self.button_generate_report = tab_widget.findChild(QPushButton, "pushButton_fastQC_Report")
         self.radioButton_base_seq_quality = tab_widget.findChild(QRadioButton, "radioButton_base_seq_quality")
         self.radioButton_base_seq_content = tab_widget.findChild(QRadioButton, "radioButton_base_seq_content")
         self.listWidget_fastqcreport = tab_widget.findChild(QListWidget, "listWidget_fastqcreport")
@@ -50,16 +50,17 @@ class FastQCReportTab:
             # Enable self.radioButton_base_seq_content
             thread.finished_signal.connect(self.show_new_files)
             thread.start()
+            # 将当前线程放入线程池。在关闭app时确保所有线程被终止
             config.threads.append(thread)            
 
 
     def update_output(self, text):
-        self.logger.info(text)
+        self.logger.info("update_output - %s", text)
         if text is None:
             return
         # TODO popup window to give the failure reason
         if "Error" in text:
-            self.logger.error(text)
+            self.logger.error("update_output - %s", text)
             return
         
     def show_new_files(self, status):
