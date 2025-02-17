@@ -24,7 +24,7 @@
      </rect>
     </property>
     <property name="currentIndex">
-     <number>0</number>
+     <number>1</number>
     </property>
     <widget class="QWidget" name="tab_rawdata">
      <attribute name="title">
@@ -238,7 +238,7 @@
           </font>
          </property>
          <property name="text">
-          <string>Per base sequence quality</string>
+          <string>Read 碱基质量分布图</string>
          </property>
         </widget>
        </item>
@@ -253,7 +253,7 @@
           </font>
          </property>
          <property name="text">
-          <string>Per base sequence content</string>
+          <string>Read 碱基组成分布图</string>
          </property>
         </widget>
        </item>

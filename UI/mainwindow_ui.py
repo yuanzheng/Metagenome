@@ -209,7 +209,7 @@ class Ui_MainWindow(object):
 
         self.retranslateUi(MainWindow)
 
-        self.tabWidget.setCurrentIndex(0)
+        self.tabWidget.setCurrentIndex(1)
 
 
         QMetaObject.connectSlotsByName(MainWindow)
@@ -227,8 +227,8 @@ class Ui_MainWindow(object):
         self.button_analysis_start.setText(QCoreApplication.translate("MainWindow", u"\u5f00\u59cb\u5206\u6790", None))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab_rawdata), QCoreApplication.translate("MainWindow", u"\u6d4b\u5e8f\u6570\u636e", None))
         self.pushButton_fastQC_Report.setText(QCoreApplication.translate("MainWindow", u"\u751f\u6210FastQC Report", None))
-        self.radioButton_base_seq_quality.setText(QCoreApplication.translate("MainWindow", u"Per base sequence quality", None))
-        self.radioButton_base_seq_content.setText(QCoreApplication.translate("MainWindow", u"Per base sequence content", None))
+        self.radioButton_base_seq_quality.setText(QCoreApplication.translate("MainWindow", u"Read \u78b1\u57fa\u8d28\u91cf\u5206\u5e03\u56fe", None))
+        self.radioButton_base_seq_content.setText(QCoreApplication.translate("MainWindow", u"Read \u78b1\u57fa\u7ec4\u6210\u5206\u5e03\u56fe", None))
         self.label_image.setText(QCoreApplication.translate("MainWindow", u"Image  will appear here", None))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab_fastqcreport), QCoreApplication.translate("MainWindow", u"FastQC Report", None))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab_3), QCoreApplication.translate("MainWindow", u"Trim\u8d28\u63a7", None))

@@ -22,7 +22,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 
         # Initailze tab FastQC Report
         self.fastQC_tab_logic = FastQCReportTab(self.tab_fastqcreport)
-        self.pushButton_fastQC_Report.clicked.connect(self.fastQC_tab_logic.getWorkDirectory)
+        self.pushButton_fastQC_Report.clicked.connect(self.fastQC_tab_logic.generateFastQCReport)
         # self.pushButton_fastQC_Report.clicked.connect(self.getWorkDirectory)
         # self.listWidget.currentRowChanged.connect(self.displayImageForFastQCReport)
 
