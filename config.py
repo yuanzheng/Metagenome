@@ -1,10 +1,10 @@
 import logging
-fastqcReportDirectory = "fastQCreport"
-fastQDataDirectory = ""
-fastQParserExefile = ""
-fastQCReportExtension = ".zip"
-fastQCReportImage_SeqQuality = "per_base_quality.svg"
-fastQCReportImage_SeqContent = "per_base_sequence_content.svg"
+FASTQC_REPORT_DIRECTORY = "fastQCreport"
+FASTQ_DATA_DIRECTORY = ""
+FASTQ_PARSER_EXE_FILE = ""
+FASTQC_REPORT_EXTENSION = ".zip"
+FASTQC_REPORT_IMAGE_SEQUENCE_QUALITY = "per_base_quality.svg"
+FASTQC_REPORT_IMAGE_SEQUENCE_CONTENT = "per_base_sequence_content.svg"
 LOGGING_LEVEL = logging.DEBUG
 SETUP_MODULE_LOGGING_LEVEL = logging.INFO
 # 保存所有线程

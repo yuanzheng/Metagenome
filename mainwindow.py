@@ -4,9 +4,9 @@ import logging
 from PySide6.QtCore import Qt, Slot
 from PySide6.QtWidgets import QMainWindow, QFileDialog
 from PySide6.QtGui import QPixmap
-from UI.mainwindow_ui import Ui_MainWindow
-from Setup_Window.setup import SetupWindow
-from MainWindowTabs.fastqc_report_tab import FastQCReportTab
+from ui_package.mainwindow_ui import Ui_MainWindow
+from setup_window.setup import SetupWindow
+from main_window_tabs.fastqc_report_tab import FastQCReportTab
 
 
 class MainWindow(QMainWindow, Ui_MainWindow):
@@ -22,9 +22,9 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 
         # Initailze tab FastQC Report
         self.fastQC_tab_logic = FastQCReportTab(self.tab_fastqcreport)
-        self.pushButton_fastQC_Report.clicked.connect(self.fastQC_tab_logic.generateFastQCReport)
-        self.fastqcRadioButtonGroup.buttonToggled.connect(self.fastQC_tab_logic.clickOnRadioButton)
-        self.listWidget_fastqcreport.currentRowChanged.connect(self.fastQC_tab_logic.displayImageForFastQCReport)
+        self.pushButton_fastQC_Report.clicked.connect(self.fastQC_tab_logic.generate_fastqc_report)
+        self.fastqcRadioButtonGroup.buttonToggled.connect(self.fastQC_tab_logic.clickon_radio_button)
+        self.listWidget_fastqcreport.currentRowChanged.connect(self.fastQC_tab_logic.display_image_for_fastqc_report)
 
     def editSetup(self):
         self.setup = SetupWindow()

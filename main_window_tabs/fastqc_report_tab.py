@@ -5,9 +5,9 @@ import logging
 import zipfile
 from pathlib import Path
 from PySide6.QtCore import Qt, Slot, QByteArray, QSize
-from PySide6.QtWidgets import QLabel, QMessageBox, QRadioButton, QListWidget, QProgressBar
+from PySide6.QtWidgets import QLabel, QRadioButton, QListWidget, QProgressBar
 from PySide6.QtSvg import QSvgRenderer
-from MainWindowTabs.ThreadUtilies.FastQCThread import FastQCThread
+from main_window_tabs.thread_utilies.fastqc_thread import FastQCThread
 from PySide6.QtGui import QPixmap, QImage, QPainter
 
 
@@ -25,21 +25,21 @@ class FastQCReportTab:
         self.progress_bar = tab_widget.findChild(QProgressBar, "progressBar_fastqc")
 
     @Slot()
-    def generateFastQCReport(self):
-        self.logger.debug("Check global variable, fastQDataDirectory: %s", config.fastQDataDirectory)
+    def generate_fastqc_report(self):
+        self.logger.debug("Check global variable, fastQDataDirectory: %s", config.FASTQ_DATA_DIRECTORY)
 
-        self.output_dir = Path(config.fastQDataDirectory) / config.fastqcReportDirectory
+        self.output_dir = Path(config.FASTQ_DATA_DIRECTORY) / config.FASTQC_REPORT_DIRECTORY
         
         # Open the output directory and load zip file names to listwidget
         # check if directory exists, and if directory is empty
-        if not self.listFastQCReport(self.output_dir):
+        if not self.list_fastqc_report(self.output_dir):
             self.logger.debug("Run FastQC script to generate reports")
             self.listWidget_fastqcreport.clear()
             # Run FastQC script
             # 使用 glob 手动扩展文件列表（跨平台兼容）
-            input_files = glob.glob(os.path.join(config.fastQDataDirectory, "*.fastq.gz"))
+            input_files = glob.glob(os.path.join(config.FASTQ_DATA_DIRECTORY, "*.fastq.gz"))
             if not input_files:
-                self.logger.error("No .fastq.gz files found in " + config.fastQDataDirectory + "\n")
+                self.logger.error("No .fastq.gz files found in " + config.FASTQ_DATA_DIRECTORY + "\n")
                 return
             # 启动线程
             thread = FastQCThread(input_files, self.output_dir)
@@ -55,26 +55,26 @@ class FastQCReportTab:
             config.threads.append(thread)            
 
     @Slot()
-    def clickOnRadioButton(self):
+    def clickon_radio_button(self):
         if self.radioButton_base_seq_quality.isChecked():
             self.logger.info("base_seq_quality is selected") 
-            self.displayImageForFastQCReport() 
+            self.display_image_for_fastqc_report() 
         
         if self.radioButton_base_seq_content.isChecked():
             self.logger.info("base_seq_content is selected")
-            self.displayImageForFastQCReport() 
+            self.display_image_for_fastqc_report() 
 
-    def selectedRadioButton(self):
+    def selected_radio_button(self):
         if self.radioButton_base_seq_quality.isChecked():
             self.logger.info("base_seq_quality is on") 
-            return config.fastQCReportImage_SeqQuality 
+            return config.FASTQC_REPORT_IMAGE_SEQUENCE_QUALITY 
         
         if self.radioButton_base_seq_content.isChecked():
             self.logger.info("base_seq_content is on")
-            return config.fastQCReportImage_SeqContent 
+            return config.FASTQC_REPORT_IMAGE_SEQUENCE_CONTENT 
 
     @Slot()
-    def displayImageForFastQCReport(self):
+    def display_image_for_fastqc_report(self):
         if self.listWidget_fastqcreport.currentRow() >= 0:
             fileName = self.listWidget_fastqcreport.currentItem().text()
             self.logger.debug("display image for file: %s", fileName)
@@ -82,8 +82,8 @@ class FastQCReportTab:
             zip_path = os.path.join(self.output_dir, fileName)
             self.logger.debug("Full path is %s", zip_path)
 
-            imageFile = self.selectedRadioButton()
-            self.loadZip(zip_path, imageFile)
+            imageFile = self.selected_radio_button()
+            self.load_zip(zip_path, imageFile)
 
     def update_output(self, text):
         self.logger.info("update_output - %s", text)
@@ -97,11 +97,11 @@ class FastQCReportTab:
     def show_new_files(self, status):
         self.logger.debug("Thread is done!")
         if status == "Successfull":
-            self.listFastQCReport(self.output_dir)
+            self.list_fastqc_report(self.output_dir)
         else:
             self.listWidget_fastqcreport.addItem("没有找到fastqc report!")
 
-    def fileFilter(self, files, extensions):
+    def file_filter(self, files, extensions):
         results = []
         self.logger.debug("all files in directory: %s", files)
         for file in files:
@@ -110,12 +110,12 @@ class FastQCReportTab:
                     results.append(file)
         return results
     
-    def listFastQCReport(self, fastqcReportDirectory):
-        self.logger.debug("Fastqc report directory: %s", fastqcReportDirectory)
-        extensions = [config.fastQCReportExtension]
+    def list_fastqc_report(self, fastqc_report_directory):
+        self.logger.debug("Fastqc report directory: %s", fastqc_report_directory)
+        extensions = [config.FASTQC_REPORT_EXTENSION]
         try:
-            if Path.exists(fastqcReportDirectory):
-                fileNames = self.fileFilter(os.listdir(fastqcReportDirectory), extensions)
+            if Path.exists(fastqc_report_directory):
+                fileNames = self.file_filter(os.listdir(fastqc_report_directory), extensions)
                 self.listWidget_fastqcreport.clear()
                 for fileName in fileNames:
                     self.listWidget_fastqcreport.addItem(fileName)
@@ -132,7 +132,7 @@ class FastQCReportTab:
 
         return False
 
-    def loadZip(self, zip_path, image_file_name):
+    def load_zip(self, zip_path, image_file_name):
         """安全加载ZIP文件"""
         try:
             # 统一路径格式处理
@@ -151,27 +151,27 @@ class FastQCReportTab:
         """处理ZIP内容"""
         found_svg = False
         for file_info in zip_file.infolist():
-            if self.isValidSvg(file_info.filename, image_file_name):
+            if self.is_valid_svg(file_info.filename, image_file_name):
                 self.logger.debug("The valid path: %s", file_info.filename)
-                self.addSvgToLabel(zip_file, file_info)
+                self.add_svg_to_label(zip_file, file_info)
                 found_svg = True
                 break
                 
         if not found_svg:
             self.logger.info("Not found SVG file", "Please check if fastqc-report zip file includes an Images directory with .svg files")
 
-    def isValidSvg(self, filename, imagefilename):
+    def is_valid_svg(self, filename, image_filename):
         """验证文件名有效性 """
         # 统一转小写处理路径
         lower_name = filename.lower()
         # self.logger.debug("Each path in zip: %s", lower_name)
         return (
-            lower_name.endswith(imagefilename) and 
+            lower_name.endswith(image_filename) and 
             lower_name.split('/')[-2] == 'images' and  # 兼容Linux/Windows路径
             not lower_name.startswith('__')  # 排除系统隐藏文件
         )
     
-    def addSvgToLabel(self, zip_file, file_info):
+    def add_svg_to_label(self, zip_file, file_info):
         """创建SVG显示组件"""
         with zip_file.open(file_info) as f:
             svg_data = QByteArray(f.read())

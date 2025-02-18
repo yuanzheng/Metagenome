@@ -4,7 +4,7 @@ import logging
 from PySide6.QtCore import Qt, Slot
 from PySide6.QtWidgets import QWidget, QApplication, QFileDialog
 
-from Setup_Window.UI.setup_window_ui import Ui_SetupForm
+from setup_window.ui_package.setup_window_ui import Ui_SetupForm
 
 class SetupWindow(QWidget, Ui_SetupForm):
     def __init__(self):
@@ -13,9 +13,9 @@ class SetupWindow(QWidget, Ui_SetupForm):
         self.setupUi(self)
         self.setWindowFlag(Qt.WindowType.WindowStaysOnTopHint, True)
 
-        self.lineEdit_fastQDataDirectory.setText(config.fastQDataDirectory)
-        self.lineEdit_fastQCReportDirectory.setText(config.fastqcReportDirectory)
-        self.lineEdit_fastQParser.setText(config.fastQParserExefile)
+        self.lineEdit_fastQDataDirectory.setText(config.FASTQ_DATA_DIRECTORY)
+        self.lineEdit_fastQCReportDirectory.setText(config.FASTQC_REPORT_DIRECTORY)
+        self.lineEdit_fastQParser.setText(config.FASTQ_PARSER_EXE_FILE)
 
         self.pushButton_save.clicked.connect(self.saveSetupWindow)
         self.pushButton_cancel.clicked.connect(self.cancelSetupWindow)
@@ -27,19 +27,19 @@ class SetupWindow(QWidget, Ui_SetupForm):
     def saveSetupWindow(self):
         self.logger.info("Save the setup window")
         global fastQDataDirectory 
-        config.fastQDataDirectory = self.lineEdit_fastQDataDirectory.text()
+        config.FASTQ_DATA_DIRECTORY = self.lineEdit_fastQDataDirectory.text()
 
         global fastqcReportDirectory 
-        config.fastqcReportDirectory = self.lineEdit_fastQCReportDirectory.text()
+        config.FASTQC_REPORT_DIRECTORY = self.lineEdit_fastQCReportDirectory.text()
 
         global fastQParserExefile
-        config.fastQParserExefile = self.lineEdit_fastQParser.text()
+        config.FASTQ_PARSER_EXE_FILE = self.lineEdit_fastQParser.text()
         self.logger.debug("Setup, fastQ Data Directory: %s\n" +
                           "fastqc Report Directory: %s\nand " +
                           "fastQ Parser ExE file: %s", 
-                          config.fastQDataDirectory, 
-                          config.fastqcReportDirectory,
-                          config.fastQParserExefile)
+                          config.FASTQ_DATA_DIRECTORY, 
+                          config.FASTQC_REPORT_DIRECTORY,
+                          config.FASTQ_PARSER_EXE_FILE)
         self.close()
 
     def cancelSetupWindow(self):
