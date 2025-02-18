@@ -23,9 +23,8 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         # Initailze tab FastQC Report
         self.fastQC_tab_logic = FastQCReportTab(self.tab_fastqcreport)
         self.pushButton_fastQC_Report.clicked.connect(self.fastQC_tab_logic.generateFastQCReport)
-    
-        # self.pushButton_fastQC_Report.clicked.connect(self.getWorkDirectory)
-        # self.listWidget.currentRowChanged.connect(self.displayImageForFastQCReport)
+        self.fastqcRadioButtonGroup.buttonToggled.connect(self.fastQC_tab_logic.clickOnRadioButton)
+        self.listWidget_fastqcreport.currentRowChanged.connect(self.fastQC_tab_logic.displayImageForFastQCReport)
 
     def editSetup(self):
         self.setup = SetupWindow()

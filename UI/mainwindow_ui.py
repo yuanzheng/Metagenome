@@ -16,12 +16,12 @@ from PySide6.QtGui import (QAction, QBrush, QColor, QConicalGradient,
     QIcon, QImage, QKeySequence, QLinearGradient,
     QPainter, QPalette, QPixmap, QRadialGradient,
     QTransform)
-from PySide6.QtWidgets import (QApplication, QCheckBox, QComboBox, QGridLayout,
-    QGroupBox, QHBoxLayout, QLabel, QListWidget,
-    QListWidgetItem, QMainWindow, QMenu, QMenuBar,
-    QProgressBar, QPushButton, QRadioButton, QScrollArea,
-    QSizePolicy, QSpacerItem, QStatusBar, QTabWidget,
-    QVBoxLayout, QWidget)
+from PySide6.QtWidgets import (QApplication, QButtonGroup, QCheckBox, QComboBox,
+    QGridLayout, QGroupBox, QHBoxLayout, QLabel,
+    QListWidget, QListWidgetItem, QMainWindow, QMenu,
+    QMenuBar, QProgressBar, QPushButton, QRadioButton,
+    QScrollArea, QSizePolicy, QSpacerItem, QStatusBar,
+    QTabWidget, QVBoxLayout, QWidget)
 
 class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
@@ -153,6 +153,9 @@ class Ui_MainWindow(object):
         self.verticalLayout_3.addWidget(self.progressBar_fastqc)
 
         self.radioButton_base_seq_quality = QRadioButton(self.verticalLayoutWidget_2)
+        self.fastqcRadioButtonGroup = QButtonGroup(MainWindow)
+        self.fastqcRadioButtonGroup.setObjectName(u"fastqcRadioButtonGroup")
+        self.fastqcRadioButtonGroup.addButton(self.radioButton_base_seq_quality)
         self.radioButton_base_seq_quality.setObjectName(u"radioButton_base_seq_quality")
         self.radioButton_base_seq_quality.setEnabled(False)
         font2 = QFont()
@@ -162,6 +165,7 @@ class Ui_MainWindow(object):
         self.verticalLayout_3.addWidget(self.radioButton_base_seq_quality)
 
         self.radioButton_base_seq_content = QRadioButton(self.verticalLayoutWidget_2)
+        self.fastqcRadioButtonGroup.addButton(self.radioButton_base_seq_content)
         self.radioButton_base_seq_content.setObjectName(u"radioButton_base_seq_content")
         self.radioButton_base_seq_content.setEnabled(False)
         self.radioButton_base_seq_content.setFont(font2)

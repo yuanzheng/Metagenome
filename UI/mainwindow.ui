@@ -240,6 +240,9 @@
          <property name="text">
           <string>Read 碱基质量分布图</string>
          </property>
+         <attribute name="buttonGroup">
+          <string notr="true">fastqcRadioButtonGroup</string>
+         </attribute>
         </widget>
        </item>
        <item>
@@ -255,6 +258,9 @@
          <property name="text">
           <string>Read 碱基组成分布图</string>
          </property>
+         <attribute name="buttonGroup">
+          <string notr="true">fastqcRadioButtonGroup</string>
+         </attribute>
         </widget>
        </item>
        <item>
@@ -333,4 +339,7 @@
  </widget>
  <resources/>
  <connections/>
+ <buttongroups>
+  <buttongroup name="fastqcRadioButtonGroup"/>
+ </buttongroups>
 </ui>
