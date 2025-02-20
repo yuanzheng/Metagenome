@@ -1,13 +1,13 @@
 import os
 import glob
-import config
+import config.config as config
 import logging
 import zipfile
 from pathlib import Path
 from PySide6.QtCore import Qt, Slot, QByteArray, QSize
 from PySide6.QtWidgets import QLabel, QRadioButton, QListWidget, QProgressBar
 from PySide6.QtSvg import QSvgRenderer
-from main_window_tabs.thread_utilies.fastqc_thread import FastQCThread
+from utils.thread_utilies.fastqc_thread import FastQCThread
 from PySide6.QtGui import QPixmap, QImage, QPainter
 
 

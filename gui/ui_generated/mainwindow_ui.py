@@ -137,7 +137,7 @@ class Ui_MainWindow(object):
 
         self.progressBar_fastq_analysis = QProgressBar(self.horizontalLayoutWidget)
         self.progressBar_fastq_analysis.setObjectName(u"progressBar_fastq_analysis")
-        self.progressBar_fastq_analysis.setValue(1)
+        self.progressBar_fastq_analysis.setValue(0)
 
         self.horizontalLayout_2.addWidget(self.progressBar_fastq_analysis)
 
@@ -175,7 +175,7 @@ class Ui_MainWindow(object):
 
         self.progressBar_fastqc = QProgressBar(self.verticalLayoutWidget_2)
         self.progressBar_fastqc.setObjectName(u"progressBar_fastqc")
-        self.progressBar_fastqc.setValue(1)
+        self.progressBar_fastqc.setValue(0)
 
         self.verticalLayout_3.addWidget(self.progressBar_fastqc)
 
@@ -244,7 +244,7 @@ class Ui_MainWindow(object):
 
         self.retranslateUi(MainWindow)
 
-        self.tabWidget.setCurrentIndex(0)
+        self.tabWidget.setCurrentIndex(1)
 
 
         QMetaObject.connectSlotsByName(MainWindow)

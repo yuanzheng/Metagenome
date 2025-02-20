@@ -1,10 +1,10 @@
 import sys
-import config
+import config.config as config
 import logging
 from PySide6.QtCore import Qt, Slot
 from PySide6.QtWidgets import QWidget, QApplication, QFileDialog
 
-from setup_window.ui_package.setup_window_ui import Ui_SetupForm
+from gui.ui_generated.setup_window_ui import Ui_SetupForm
 
 class SetupWindow(QWidget, Ui_SetupForm):
     def __init__(self):

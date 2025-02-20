@@ -30,7 +30,7 @@
        </font>
       </property>
       <property name="currentIndex">
-       <number>0</number>
+       <number>1</number>
       </property>
       <widget class="QWidget" name="tab_rawdata">
        <attribute name="title">
@@ -184,7 +184,7 @@
              <item>
               <widget class="QProgressBar" name="progressBar_fastq_analysis">
                <property name="value">
-                <number>1</number>
+                <number>0</number>
                </property>
               </widget>
              </item>
@@ -235,7 +235,7 @@
          <item>
           <widget class="QProgressBar" name="progressBar_fastqc">
            <property name="value">
-            <number>1</number>
+            <number>0</number>
            </property>
           </widget>
          </item>

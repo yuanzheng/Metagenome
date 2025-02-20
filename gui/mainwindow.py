@@ -1,12 +1,12 @@
 import os
-import config
+import config.config as config
 import logging
 from PySide6.QtCore import Qt, Slot
 from PySide6.QtWidgets import QMainWindow, QFileDialog
 from PySide6.QtGui import QPixmap
-from ui_package.mainwindow_ui import Ui_MainWindow
-from setup_window.setup import SetupWindow
-from main_window_tabs.fastqc_report_tab import FastQCReportTab
+from gui.ui_generated.mainwindow_ui import Ui_MainWindow
+from gui.setup import SetupWindow
+from core.fastq_analysis import FastQCReportTab
 
 
 class MainWindow(QMainWindow, Ui_MainWindow):

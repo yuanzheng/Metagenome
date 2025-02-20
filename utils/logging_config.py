@@ -1,6 +1,6 @@
 import os
 import logging
-import config
+import config.config as config
 from logging.handlers import TimedRotatingFileHandler
 
 def setup_logger():
