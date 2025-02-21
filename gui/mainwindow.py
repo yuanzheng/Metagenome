@@ -6,7 +6,7 @@ from PySide6.QtWidgets import QMainWindow, QFileDialog
 from PySide6.QtGui import QPixmap
 from gui.ui_generated.mainwindow_ui import Ui_MainWindow
 from gui.setup import SetupWindow
-from core.fastq_analysis import FastQCReportTab
+from core.fastq_analysis.fastqc_report import FastQCReportProcessor
 
 
 class MainWindow(QMainWindow, Ui_MainWindow):
@@ -21,7 +21,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.actionSetup.triggered.connect(self.editSetup)
 
         # Initailze tab FastQC Report
-        self.fastQC_tab_logic = FastQCReportTab(self.tab_fastqcreport)
+        self.fastQC_tab_logic = FastQCReportProcessor(self.tab_fastqcreport)
         self.pushButton_fastQC_Report.clicked.connect(self.fastQC_tab_logic.generate_fastqc_report)
         self.fastqcRadioButtonGroup.buttonToggled.connect(self.fastQC_tab_logic.clickon_radio_button)
         self.listWidget_fastqcreport.currentRowChanged.connect(self.fastQC_tab_logic.display_image_for_fastqc_report)

@@ -12,7 +12,7 @@ from PySide6.QtGui import QPixmap, QImage, QPainter
 
 
 
-class FastQCReportTab:
+class FastQCReportProcessor:
 
     def __init__(self, tab_widget):
         self.logger = logging.getLogger(self.__class__.__name__)
