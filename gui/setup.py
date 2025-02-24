@@ -1,12 +1,14 @@
 import sys
 import config.config as config
 import logging
-from PySide6.QtCore import Qt, Slot
+from PySide6.QtCore import Qt, Signal
 from PySide6.QtWidgets import QWidget, QApplication, QFileDialog
 
 from gui.ui_generated.setup_window_ui import Ui_SetupForm
 
 class SetupWindow(QWidget, Ui_SetupForm):
+    save_signal = Signal(str)
+
     def __init__(self):
         super().__init__()
         self.logger = logging.getLogger(self.__class__.__name__)
@@ -34,6 +36,8 @@ class SetupWindow(QWidget, Ui_SetupForm):
 
         global fastQParserExefile
         config.FASTQ_PARSER_EXE_FILE = self.lineEdit_fastQParser.text()
+
+        self.save_signal.emit(config.FASTQ_DATA_DIRECTORY)
         self.logger.debug("Setup, fastQ Data Directory: %s\n" +
                           "fastqc Report Directory: %s\nand " +
                           "fastQ Parser ExE file: %s", 
@@ -61,6 +65,7 @@ class SetupWindow(QWidget, Ui_SetupForm):
 
     def selectDirectory(self):
         return QFileDialog.getExistingDirectory(self, "Select a directory")
+    
 
 
  
