@@ -4,16 +4,11 @@ import re
 import platform
 import subprocess
 import logging
+import signal
 import config.config as config
-from PySide6.QtCore import QRunnable, Signal, QObject
-
-# ==============================
-# 信号容器（用于跨线程通信）
-# ==============================
-class AnalysisSignals(QObject):
-    started = Signal(str)           # 任务开始信号（参数：文件对标识）
-    result_ready = Signal(str, dict) # 分析结果信号（文件对标识，结果字典）
-    error_occurred = Signal(str, str) # 错误信号（文件对标识，错误信息）
+from utils.thread_utilies.thread_pool import app_state
+from utils.thread_utilies.signals import signals
+from PySide6.QtCore import QRunnable
 
 
 # ==============================
@@ -21,42 +16,74 @@ class AnalysisSignals(QObject):
 # ==============================
 class AnalysisTask(QRunnable):
     
-    def __init__(self, file_id, file_path, program_path):
+    def __init__(self, file_id, file_path, program_path, task_type):
         super().__init__()
         self.logger = logging.getLogger(self.__class__.__name__)
-        self.file_id = file_id  # MT37
-        self.file_path = file_path  # (R1路径, R2路径)
+        self.file_id = file_id
+        self.file_path = file_path
         self.program_path = program_path
-        self.signals = AnalysisSignals()
+        self.task_type = task_type
+        self.process = None  # 保存进程句柄
         self.setAutoDelete(True)   # 任务完成后自动清理
 
     def run(self):
-        self.signals.started.emit(self.file_id)
-
+        if app_state.check_exit():
+            self.logger.debug("Quit this thread to give up analysis %s ", self.file_id)
+            return
+        signals.started.emit(self.file_id, self.task_type)
+        
         try:
-            self.logger.info("Start fastQ analysis thread!")
+            self.logger.info("Start fastQ analysis thread for %s", self.file_id)
 
             # 构造跨平台命令
             cmd = self._build_command()
 
             # 执行外部程序
-            result = subprocess.run(
+            self.process = subprocess.Popen(
                 cmd,
-                check=True,
                 stdout=subprocess.PIPE,
                 stderr=subprocess.PIPE,
                 text=True,
-                creationflags=subprocess.CREATE_NO_WINDOW if platform.system() == "Windows" else 0
+                creationflags=subprocess.CREATE_NO_WINDOW if os.name == 'nt' else 0
             )
+
+            # 实时监控退出请求
+            while self.process.poll() is None:
+                if app_state.check_exit():
+                    self.logger.debug("Requested to terminate the thread,  %s analysis must be quit", self.file_id)
+                    self._terminate_process()
+                    return
             
-            # 解析输出
-            stats = self._parse_output(result.stdout)
-            self.signals.result_ready.emit(self.file_id, stats)
+            if self.process.returncode == 0:
+                result = self._parse_output(self.process.stdout.read())
+                self.logger.debug("Thread stdout read, %s", result)
+                signals.result_ready.emit(self.file_id, self.task_type, result)
+            else:
+                self.logger.error("Thread process return code, %s", self.process.returncode)
+                signals.error_occurred.emit(
+                    self.file_id,
+                    self.task_type, 
+                    self.process.stderr.read()
+                )
         except subprocess.CalledProcessError as e:
             error_msg = f"Exit code {e.returncode}: {e.stderr.strip()}"
-            self.signals.error_occurred.emit(self.file_id, error_msg)
+            self.logger.debug("Thread CalledProcessError exception: %s", error_msg)
+            signals.error_occurred.emit(self.file_id, self.task_type, error_msg)
         except Exception as e:
-            self.signals.error_occurred.emit(self.file_id, str(e))
+            self.logger.debug("Thread exception: %s", str(e))
+            signals.error_occurred.emit(self.file_id, self.task_type, str(e))
+
+    def terminate_process(self):
+        """跨平台终止进程"""
+        if self.process and self.process.poll() is None:
+            if os.name == 'nt':  # Windows
+                self.logger.debug("Force quit analysis on Windows")
+                self.process.send_signal(signal.CTRL_BREAK_EVENT)
+                self.process.kill()
+            else:  # Unix
+                self.logger.debug("Force quit analysis on Unix")
+                os.killpg(os.getpgid(self.process.pid), signal.SIGTERM)
+            self.process.wait()
 
     def _build_command(self):
         """构建跨平台命令"""
@@ -82,7 +109,7 @@ class AnalysisTask(QRunnable):
         bases_match = re.search(r"Num Bases:\s*(\d+)", output)
         
         if not reads_match or not bases_match:
-            raise ValueError("输出格式不符合预期")
+            raise ValueError("The format of output from cmd doesn't match the requirement")
             
         return {
             config.FASTQ_TOTAL_READS: int(reads_match.group(1)),

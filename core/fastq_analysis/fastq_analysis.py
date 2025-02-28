@@ -1,15 +1,17 @@
 import os
 from pathlib import Path
 from collections import defaultdict
-from PySide6.QtCore import Qt, Slot, QThreadPool
+from PySide6.QtCore import Qt, Slot
 from PySide6.QtWidgets import (
     QListWidgetItem, QListWidget, QPushButton, 
     QProgressBar, QMessageBox, QTableWidget, QTableWidgetItem,
     QCheckBox, QHeaderView)
 import logging
 import config.config as config
-from utils.thread_utilies.fastq_analysis_thread import AnalysisTask, AnalysisSignals
-from concurrent.futures import ThreadPoolExecutor
+from utils.thread_utilies.fastq_analysis_thread import AnalysisTask
+from utils.thread_utilies.thread_pool import ThreadPoolManager
+from utils.thread_utilies.signals import TaskType
+from utils.thread_utilies.signals import signals
 
 
 class FastQAnalysisProcessor:
@@ -26,8 +28,9 @@ class FastQAnalysisProcessor:
         self.button_analysis_start.clicked.connect(self.start_analysis)
         self.checkBox_total_bases = tab_widget.findChild(QCheckBox, "checkBox_total_bases")
         self.checkBox_total_reads = tab_widget.findChild(QCheckBox, "checkBox_total_reads")
-
         self.tableWidget_fastq_analysis = tab_widget.findChild(QTableWidget, "tableWidget_fastq_analysis")
+
+        self.thread_pool = ThreadPoolManager()
 
     @Slot()
     def start_analysis(self):
@@ -54,23 +57,29 @@ class FastQAnalysisProcessor:
             return
         
         self._init_table_row(selected_items)
-        
-        pool = QThreadPool.globalInstance()
-        pool.setMaxThreadCount(len(selected_items))  # 限制最大并发数
-        
+
         # 启动分析线程
         for file_id in selected_items:
             file_path = self.raw_fastq_filenames[file_id]
-            thread = AnalysisTask(file_id, file_path, config.FASTQ_PARSER_EXE_FILE)
-            thread.signals.started.connect(self.on_task_start)
-            thread.signals.result_ready.connect(self.on_result_ready)
-            thread.signals.error_occurred.connect(self.on_task_error)
-            pool.start(thread)
+            thread = AnalysisTask(
+                file_id, file_path,
+                config.FASTQ_PARSER_EXE_FILE,
+                task_type=TaskType.FASTQ_STATS
+            )
+            signals.started.connect(self.on_task_start)
+            signals.result_ready.connect(self.on_result_ready)
+            signals.error_occurred.connect(self.on_task_error)
+            
             # 将当前线程放入线程池。在关闭app时确保所有线程被终止
-            config.threads.append(thread)
+            self.thread_pool.submit_task(task_id=file_id, task=thread)
+        
 
-    @Slot(str, str)
-    def on_task_error(self, file_id, error_msg):
+    @Slot(str, TaskType, str)
+    def on_task_error(self, file_id, task_type, error_msg):
+        """检查线程发出的signal是否是当前类提交的任务, 如果不是直接退出"""
+        if task_type != TaskType.FASTQ_STATS:
+            return
+        
         """错误处理"""
         for row in range(self.tableWidget_fastq_analysis.rowCount()):
             if self.tableWidget_fastq_analysis.item(row, 0).text() == file_id:
@@ -81,8 +90,12 @@ class FastQAnalysisProcessor:
                     self.tableWidget_fastq_analysis.setItem(row, index, item)
                 break
 
-    @Slot(str, dict)
-    def on_result_ready(self, file_id, result):
+    @Slot(str, TaskType, dict)
+    def on_result_ready(self, file_id, task_type, result):
+        """检查线程发出的signal是否是当前类提交的任务，如果不是直接退出"""
+        if task_type != TaskType.FASTQ_STATS:
+            return
+        
         if not result:
             self.logger.error("Failed to get FASTQ analysis result for file: %s", file_id)
         """成功结果处理"""
@@ -96,9 +109,12 @@ class FastQAnalysisProcessor:
                     self.tableWidget_fastq_analysis.setItem(row, index, item)
                 break
 
-    @Slot(str)
-    def on_task_start(self, file_id):
-        """任务开始回调"""
+    @Slot(str, TaskType) 
+    def on_task_start(self, file_id, task_type):
+        """检查线程发出的signal是否是当前类提交的任务，如果不是直接退出"""
+        if task_type != TaskType.FASTQ_STATS:
+            return
+        
         for row in range(self.tableWidget_fastq_analysis.rowCount()):
             if self.tableWidget_fastq_analysis.item(row, 0).text() == file_id:
                 for col in range(1, self.tableWidget_fastq_analysis.columnCount()):
@@ -141,8 +157,6 @@ class FastQAnalysisProcessor:
     
     def file_name_split(self, file_name):
         key = file_name.partition("_")[0]  # 分割第一个下划线前的部分
-        # 转换为普通字典（如果需要）
-        # result = dict(result)
         return key
     
     def add_items_into_listwidget(self, sorted_list):
@@ -235,3 +249,4 @@ class FastQAnalysisProcessor:
                     status_item = QTableWidgetItem("等待分析...")
                     status_item.setForeground(Qt.gray)
                     self.tableWidget_fastq_analysis.setItem(row, col, status_item)
+
