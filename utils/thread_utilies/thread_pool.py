@@ -1,5 +1,6 @@
-from PySide6.QtCore import QThreadPool, Signal, QObject, QMutex, QMutexLocker
+from PySide6.QtCore import QThreadPool, QMutex, QMutexLocker
 import config.config as config
+import logging
 
 # ==============================
 # 全局控制标志（线程安全）
@@ -33,11 +34,19 @@ class ThreadPoolManager:
             cls._instance.pool = QThreadPool.globalInstance()
             cls._instance.pool.setMaxThreadCount(config.FASTQ_MAX_THREAD_NUMBER)  # 限制最大并发数
             cls._instance.tasks = {}
+            cls._instance.logger = logging.getLogger(cls.__class__.__name__)
         return cls._instance
 
     def submit_task(self, task_id, task):
+        if task_id in self.tasks:
+            self.logger.debug("Thread task %s already launched, so refuse this thread", task_id)
+            return
         self.tasks[task_id] = task
         self.pool.start(task)
+
+    def alive_thread_counter(self):
+        self.logger.debug("Alive thread in the pool: %s", self.pool.activeThreadCount())
+        return self.pool.activeThreadCount()
 
     def stop_all(self):
         for task in self.tasks.values():
