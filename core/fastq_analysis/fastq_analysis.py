@@ -89,6 +89,10 @@ class FastQAnalysisProcessor:
                     item.setForeground(Qt.red)
                     self.tableWidget_fastq_analysis.setItem(row, index, item)
                 break
+        
+        if self.thread_pool.alive_thread_counter() == 0:
+            self.button_analysis_start.setEnabled(True)
+
 
     @Slot(str, TaskType, dict)
     def on_result_ready(self, file_id, task_type, result):
@@ -108,6 +112,8 @@ class FastQAnalysisProcessor:
                     item.setForeground(Qt.darkGreen)
                     self.tableWidget_fastq_analysis.setItem(row, index, item)
                 break
+        if self.thread_pool.alive_thread_counter() == 0:
+            self.button_analysis_start.setEnabled(True)
 
     @Slot(str, TaskType) 
     def on_task_start(self, file_id, task_type):
@@ -122,6 +128,7 @@ class FastQAnalysisProcessor:
                     item.setText("分析中...")
                     item.setForeground(Qt.darkYellow)
                 break
+        self.button_analysis_start.setEnabled(False)
 
     @Slot(str)
     def list_fastq_files(self, fastq_file_directory):

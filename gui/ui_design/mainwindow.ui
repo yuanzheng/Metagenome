@@ -30,7 +30,7 @@
        </font>
       </property>
       <property name="currentIndex">
-       <number>1</number>
+       <number>0</number>
       </property>
       <widget class="QWidget" name="tab_rawdata">
        <attribute name="title">
@@ -175,6 +175,9 @@
                  <pointsize>12</pointsize>
                  <bold>true</bold>
                 </font>
+               </property>
+               <property name="styleSheet">
+                <string notr="true">background-color: rgb(5, 155, 72);</string>
                </property>
                <property name="text">
                 <string>开始分析</string>
@@ -330,7 +333,7 @@
      <x>0</x>
      <y>0</y>
      <width>899</width>
-     <height>22</height>
+     <height>24</height>
     </rect>
    </property>
    <widget class="QMenu" name="menu">

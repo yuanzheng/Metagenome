@@ -132,6 +132,7 @@ class Ui_MainWindow(object):
         self.button_analysis_start.setObjectName(u"button_analysis_start")
         self.button_analysis_start.setEnabled(True)
         self.button_analysis_start.setFont(font1)
+        self.button_analysis_start.setStyleSheet(u"background-color: rgb(5, 155, 72);")
 
         self.horizontalLayout_2.addWidget(self.button_analysis_start)
 
@@ -226,7 +227,7 @@ class Ui_MainWindow(object):
         MainWindow.setCentralWidget(self.centralwidget)
         self.menubar = QMenuBar(MainWindow)
         self.menubar.setObjectName(u"menubar")
-        self.menubar.setGeometry(QRect(0, 0, 899, 22))
+        self.menubar.setGeometry(QRect(0, 0, 899, 24))
         self.menu = QMenu(self.menubar)
         self.menu.setObjectName(u"menu")
         self.menu_2 = QMenu(self.menubar)
@@ -244,7 +245,7 @@ class Ui_MainWindow(object):
 
         self.retranslateUi(MainWindow)
 
-        self.tabWidget.setCurrentIndex(1)
+        self.tabWidget.setCurrentIndex(0)
 
 
         QMetaObject.connectSlotsByName(MainWindow)
