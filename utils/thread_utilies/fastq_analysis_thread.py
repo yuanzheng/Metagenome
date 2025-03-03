@@ -1,7 +1,5 @@
-import sys
 import os
 import re
-import platform
 import subprocess
 import logging
 import signal

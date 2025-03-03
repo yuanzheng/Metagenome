@@ -20,9 +20,9 @@ class FastQAnalysisProcessor:
     def __init__(self, tab_widget):
         self.logger = logging.getLogger(self.__class__.__name__)
         self.tab_widget = tab_widget
-        self.raw_fastq_filenames = defaultdict(list)
-        self.bulk_update = False  # 防止批量更新时触发事件
-        self.table_header = []
+        self._raw_fastq_filenames = defaultdict(list)
+        self._bulk_update = False  # 防止批量更新时触发事件
+        self._table_header = []
         self.listWidget_fastq_analysis = tab_widget.findChild(QListWidget, "listWidget_fastq_analysis")
         self.listWidget_fastq_analysis.itemChanged.connect(self.on_item_changed)  # 连接状态变化事件
         self.button_analysis_start = tab_widget.findChild(QPushButton, "button_analysis_start")
@@ -30,22 +30,25 @@ class FastQAnalysisProcessor:
         self.checkBox_total_bases = tab_widget.findChild(QCheckBox, "checkBox_total_bases")
         self.checkBox_total_reads = tab_widget.findChild(QCheckBox, "checkBox_total_reads")
         self.tableWidget_fastq_analysis = tab_widget.findChild(QTableWidget, "tableWidget_fastq_analysis")
-
-        self.thread_pool = ThreadPoolManager()
-        self.csv_handler = None
+        self.progressBar_fastq_analysis = tab_widget.findChild(QProgressBar, "progressBar_fastq_analysis")
+        self._thread_pool = ThreadPoolManager()
+        self._csv_handler = None
         signals.started.connect(self.on_task_start)
         signals.result_ready.connect(self.on_result_ready)
         signals.error_occurred.connect(self.on_task_error)
+        self._progress_counter = 0  # 在progress bar上显示当前进度%比
+        self._thread_progress = 0   # 每个thread task 在progress bar上%比
+
 
     @Slot()
     def start_analysis(self):
         # 初始化表格
         self.tableWidget_fastq_analysis.clear()
         self.tableWidget_fastq_analysis.setRowCount(0)
-        self.table_header = self._init_table_header()
+        self._table_header = self._init_table_header()
 
         csv_dir = Path(config.FASTQ_DATA_DIRECTORY) / config.FASTQ_ANALYSIS_REPORT_DIRECTORY
-        self.csv_handler = CSVHandler(csv_dir, "stats.csv")
+        self._csv_handler = CSVHandler(csv_dir, "stats.csv")
 
         """启动分析流程"""
         # 检查程序路径
@@ -60,19 +63,23 @@ class FastQAnalysisProcessor:
             QMessageBox.warning(self.tab_widget, "警告", "请先选择要分析的文件")
             return
         
-        if len(self.table_header) == 1:
+        if len(self._table_header) == 1:
             QMessageBox.warning(self.tab_widget, "警告", "选择统计项不能为空")
             return
         
         self._init_table_row(selected_items)
 
+        # 重设 progress bar 为 0%
+        self._init_progress_bar()
+
+        thread_counter = 0  # 记录所用线程数
         # 启动分析线程
         for file_id in selected_items:
             # 避免重复统计，在缓存文件中找到已有数据直接显示在table中
             if self._statistics_exist(file_id):
                 continue
         
-            file_path = self.raw_fastq_filenames[file_id]
+            file_path = self._raw_fastq_filenames[file_id]
             thread = AnalysisTask(
                 file_id, file_path,
                 config.FASTQ_PARSER_EXE_FILE,
@@ -80,7 +87,13 @@ class FastQAnalysisProcessor:
             )
             
             # 将当前线程放入线程池。在关闭app时确保所有线程被终止
-            self.thread_pool.submit_task(task_id=file_id, task=thread)
+            self._thread_pool.submit_task(task_id=file_id, task=thread)
+            thread_counter += 1
+            self._update_progress(1)
+        
+        self.logger.debug("Total %s threads", thread_counter)
+        self._thread_progress = (100 - thread_counter)/thread_counter if thread_counter != 0 else 0
+        self.logger.debug("To complete a task, progress should increase: %s", self._thread_progress)
         
 
     @Slot(str, TaskType, str)
@@ -92,20 +105,20 @@ class FastQAnalysisProcessor:
         """错误处理"""
         for row in range(self.tableWidget_fastq_analysis.rowCount()):
             if self.tableWidget_fastq_analysis.item(row, 0).text() == file_id:
-                for index in range(1, len(self.table_header)):
-                    self.logger.error("Error, column for %s: %s", self.table_header[index], error_msg)
+                for index in range(1, len(self._table_header)):
+                    self.logger.error("Error, column for %s: %s", self._table_header[index], error_msg)
                     item = QTableWidgetItem(f"错误: {error_msg}")
                     item.setForeground(Qt.red)
                     self.tableWidget_fastq_analysis.setItem(row, index, item)
                 break
         
-        if self.thread_pool.alive_thread_counter() == 0:
+        if self._thread_pool.alive_thread_counter() == 0:
             self.button_analysis_start.setEnabled(True)
 
 
     @Slot(str, TaskType, dict)
     def on_result_ready(self, file_id, task_type, result):
-        """检查线程发出的signal是否是当前类提交的任务，如果不是直接退出"""
+        """检查线程发出的signal是否是当前类提交的任务, 如果不是直接退出"""
         if task_type != TaskType.FASTQ_STATS:
             return
         
@@ -116,21 +129,24 @@ class FastQAnalysisProcessor:
         self.logger.debug("Print result for file %s with result: %s", file_id, result)
         """成功结果处理"""
         for row in range(self.tableWidget_fastq_analysis.rowCount()):
-            self.logger.debug("table widget row: %s", row)
             if self.tableWidget_fastq_analysis.item(row, 0).text() == file_id:
-                for index in range(1, len(self.table_header)):
-                    text = f"{result[self.table_header[index]]:,}"
+                self.logger.debug("Insert data to table widget row: %s", row)
+                for index in range(1, len(self._table_header)):
+                    text = f"{result[self._table_header[index]]:,}"
                     self.logger.debug("column for %s", text)
                     item = QTableWidgetItem(text)
                     item.setForeground(Qt.darkGreen)
                     self.tableWidget_fastq_analysis.setItem(row, index, item)
                 break
-        if self.thread_pool.alive_thread_counter() == 0:
+        if self._thread_pool.alive_thread_counter() == 0:
             self.button_analysis_start.setEnabled(True)
 
         """缓存已算出的数据到本地硬盘文件中"""
-        if self.csv_handler is not None:
-            self.csv_handler.append_result(file_id, self.table_header, result)
+        if self._csv_handler is not None:
+            self._csv_handler.append_result(file_id, self._table_header, result)
+
+        """Upgrade the progress bar"""
+        self._update_progress(self._thread_progress)
 
     @Slot(str, TaskType) 
     def on_task_start(self, file_id, task_type):
@@ -152,7 +168,8 @@ class FastQAnalysisProcessor:
         self.logger.debug("Fastq file directory: %s", fastq_file_directory)
         extensions = [config.FASTQ_FILE_EXTENSION]
         directory = Path(fastq_file_directory)
-        
+        self._init_progress_bar()
+
         try:
             if directory.exists(): # Path.exists(fastq_file_directory):
                 fileNames = self._file_filter(os.listdir(directory), extensions)
@@ -161,7 +178,7 @@ class FastQAnalysisProcessor:
                 for fileName in fileNames:
                     file_id = self._file_name_split(fileName)
                     file_set.add(file_id)
-                    self.raw_fastq_filenames[file_id].append(directory / fileName)
+                    self._raw_fastq_filenames[file_id].append(directory / fileName)
                 self._add_items_into_listwidget(sorted(file_set))
             self.logger.debug("Number of fastq files: %s", self.listWidget_fastq_analysis.count())
             return True
@@ -207,19 +224,19 @@ class FastQAnalysisProcessor:
     @Slot()
     def on_item_changed(self, item):
         """处理选项状态变化"""
-        if self.bulk_update:
+        if self._bulk_update:
             return
 
         # 判断是否全选项
         if item.data(Qt.UserRole) == "SELECT_ALL":
-            self.bulk_update = True
+            self._bulk_update = True
             state = item.checkState()
             
             # 更新所有普通项状态
             for i in range(1, self.listWidget_fastq_analysis.count()):
                 self.listWidget_fastq_analysis.item(i).setCheckState(state)
             
-            self.bulk_update = False
+            self._bulk_update = False
         else:
             # 检查是否需要更新全选项状态
             all_checked = True
@@ -228,11 +245,11 @@ class FastQAnalysisProcessor:
                     all_checked = False
                     break
             
-            self.bulk_update = True
+            self._bulk_update = True
             self.listWidget_fastq_analysis.item(0).setCheckState(
                 Qt.Checked if all_checked else Qt.Unchecked
             )
-            self.bulk_update = False
+            self._bulk_update = False
 
     def _get_selected_items(self):
         num_items = self.listWidget_fastq_analysis.count()
@@ -265,7 +282,7 @@ class FastQAnalysisProcessor:
         self.tableWidget_fastq_analysis.setRowCount(len(selected_items)) 
         for row, item in enumerate(selected_items):
             self.logger.debug("Initialize table for the selected items: %s and %s", row, item)
-            for col in range(len(self.table_header)):
+            for col in range(len(self._table_header)):
                 if col == 0:
                     # 样本ID
                     self.tableWidget_fastq_analysis.setItem(row, col, QTableWidgetItem(item))
@@ -283,9 +300,9 @@ class FastQAnalysisProcessor:
         for row in range(self.tableWidget_fastq_analysis.rowCount()):
             self.logger.debug("Task skipped because exists %s", existing)
             self.logger.debug("Table widget in row %s for file: %s", row, self.tableWidget_fastq_analysis.item(row, 0).text())
-            if existing[self.table_header[0]] == self.tableWidget_fastq_analysis.item(row, 0).text():
-                for index in range(1, len(self.table_header)):
-                    text = f"{int(existing[self.table_header[index]]):,}"
+            if existing[self._table_header[0]] == self.tableWidget_fastq_analysis.item(row, 0).text():
+                for index in range(1, len(self._table_header)):
+                    text = f"{int(existing[self._table_header[index]]):,}"
                     self.logger.debug("column for %s", text)
                     item = QTableWidgetItem(text)
                     item.setForeground(Qt.darkGreen)
@@ -293,11 +310,20 @@ class FastQAnalysisProcessor:
                 break
 
     def _statistics_exist(self, file_id):
-        if self.csv_handler.has_file_id(file_id):
-            existing_one = self.csv_handler.get_existing_data(file_id)
+        if self._csv_handler.has_file_id(file_id):
+            existing_one = self._csv_handler.get_existing_data(file_id)
             self._task_skipped(existing_one)
             return True
         
         return False
+    
+    def _init_progress_bar(self):
+        self._progress_counter = 0  # update progress bar to 0%
+        self._update_progress(self._progress_counter)
+        self._thread_progress = 0
+
+    def _update_progress(self, increase_value):
+        self._progress_counter += increase_value
+        self.progressBar_fastq_analysis.setValue(self._progress_counter)
                 
         
