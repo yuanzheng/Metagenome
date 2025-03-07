@@ -111,7 +111,7 @@
              <property name="title">
               <string>选择统计项</string>
              </property>
-             <layout class="QHBoxLayout" name="horizontalLayout_3" stretch="0,0,1">
+             <layout class="QHBoxLayout" name="horizontalLayout_3" stretch="0,0,0,0,1">
               <item>
                <widget class="QCheckBox" name="checkBox_total_bases">
                 <property name="font">
@@ -140,6 +140,38 @@
                 </property>
                 <property name="text">
                  <string>Total Reads</string>
+                </property>
+                <property name="checked">
+                 <bool>true</bool>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QCheckBox" name="checkBox_Q20">
+                <property name="font">
+                 <font>
+                  <family>Arial</family>
+                  <pointsize>12</pointsize>
+                 </font>
+                </property>
+                <property name="text">
+                 <string>Q 20</string>
+                </property>
+                <property name="checked">
+                 <bool>true</bool>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QCheckBox" name="checkBox_Q30">
+                <property name="font">
+                 <font>
+                  <family>Arial</family>
+                  <pointsize>12</pointsize>
+                 </font>
+                </property>
+                <property name="text">
+                 <string>Q 30</string>
                 </property>
                 <property name="checked">
                  <bool>true</bool>

@@ -105,11 +105,21 @@ class AnalysisTask(QRunnable):
         self.logger.debug("Parse FASTQ file analysis result: %s", output)
         reads_match = re.search(r"Num reads:\s*(\d+)", output)
         bases_match = re.search(r"Num Bases:\s*(\d+)", output)
+        q20_match = re.search(r"Q20\(%\):\s*(\d+\.\d+)", output)
+        q30_match = re.search(r"Q30\(%\):\s*(\d+\.\d+)", output)
         
         if not reads_match or not bases_match:
             raise ValueError("The format of output from cmd doesn't match the requirement")
-            
+
+        if not q20_match or not q30_match:
+            return {
+                config.FASTQ_TOTAL_READS: int(reads_match.group(1)),
+                config.FASTQ_TOTAL_BASES: int(bases_match.group(1))
+            }
+
         return {
             config.FASTQ_TOTAL_READS: int(reads_match.group(1)),
-            config.FASTQ_TOTAL_BASES: int(bases_match.group(1))
+            config.FASTQ_TOTAL_BASES: int(bases_match.group(1)),
+            config.FASTQ_PHRED_Q20: q20_match.group(1),
+            config.FASTQ_PHRED_Q30: q30_match.group(1)
         }

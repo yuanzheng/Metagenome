@@ -23,26 +23,12 @@ class Ui_SetupForm(object):
     def setupUi(self, SetupForm):
         if not SetupForm.objectName():
             SetupForm.setObjectName(u"SetupForm")
-        SetupForm.resize(633, 217)
+        SetupForm.resize(672, 358)
         font = QFont()
         font.setPointSize(12)
         SetupForm.setFont(font)
         self.gridLayout = QGridLayout(SetupForm)
         self.gridLayout.setObjectName(u"gridLayout")
-        self.pushButton_cancel = QPushButton(SetupForm)
-        self.pushButton_cancel.setObjectName(u"pushButton_cancel")
-
-        self.gridLayout.addWidget(self.pushButton_cancel, 1, 1, 1, 1)
-
-        self.pushButton_save = QPushButton(SetupForm)
-        self.pushButton_save.setObjectName(u"pushButton_save")
-
-        self.gridLayout.addWidget(self.pushButton_save, 1, 2, 1, 1)
-
-        self.horizontalSpacer = QSpacerItem(40, 20, QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Minimum)
-
-        self.gridLayout.addItem(self.horizontalSpacer, 1, 0, 1, 1)
-
         self.groupBox = QGroupBox(SetupForm)
         self.groupBox.setObjectName(u"groupBox")
         self.groupBox.setAlignment(Qt.AlignmentFlag.AlignJustify|Qt.AlignmentFlag.AlignVCenter)
@@ -117,6 +103,33 @@ class Ui_SetupForm(object):
 
         self.verticalLayout.addLayout(self.horizontalLayout_2)
 
+        self.horizontalLayout_5 = QHBoxLayout()
+        self.horizontalLayout_5.setObjectName(u"horizontalLayout_5")
+        self.horizontalSpacer_4 = QSpacerItem(40, 20, QSizePolicy.Policy.Fixed, QSizePolicy.Policy.Minimum)
+
+        self.horizontalLayout_5.addItem(self.horizontalSpacer_4)
+
+        self.label_4 = QLabel(self.groupBox)
+        self.label_4.setObjectName(u"label_4")
+        self.label_4.setFont(font1)
+
+        self.horizontalLayout_5.addWidget(self.label_4)
+
+        self.lineEdit_fastqQualityStats = QLineEdit(self.groupBox)
+        self.lineEdit_fastqQualityStats.setObjectName(u"lineEdit_fastqQualityStats")
+        self.lineEdit_fastqQualityStats.setFont(font1)
+
+        self.horizontalLayout_5.addWidget(self.lineEdit_fastqQualityStats)
+
+        self.pushButton_fastqQualityStats = QPushButton(self.groupBox)
+        self.pushButton_fastqQualityStats.setObjectName(u"pushButton_fastqQualityStats")
+        self.pushButton_fastqQualityStats.setFont(font1)
+
+        self.horizontalLayout_5.addWidget(self.pushButton_fastqQualityStats)
+
+
+        self.verticalLayout.addLayout(self.horizontalLayout_5)
+
         self.horizontalLayout_4 = QHBoxLayout()
         self.horizontalLayout_4.setObjectName(u"horizontalLayout_4")
         self.label_3 = QLabel(self.groupBox)
@@ -153,6 +166,24 @@ class Ui_SetupForm(object):
 
         self.gridLayout.addWidget(self.groupBox, 0, 0, 1, 3)
 
+        self.pushButton_cancel = QPushButton(SetupForm)
+        self.pushButton_cancel.setObjectName(u"pushButton_cancel")
+
+        self.gridLayout.addWidget(self.pushButton_cancel, 2, 1, 1, 1)
+
+        self.horizontalSpacer = QSpacerItem(40, 20, QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Minimum)
+
+        self.gridLayout.addItem(self.horizontalSpacer, 2, 0, 1, 1)
+
+        self.pushButton_save = QPushButton(SetupForm)
+        self.pushButton_save.setObjectName(u"pushButton_save")
+
+        self.gridLayout.addWidget(self.pushButton_save, 2, 2, 1, 1)
+
+        self.verticalSpacer = QSpacerItem(20, 40, QSizePolicy.Policy.Minimum, QSizePolicy.Policy.Preferred)
+
+        self.gridLayout.addItem(self.verticalSpacer, 1, 0, 1, 1)
+
 
         self.retranslateUi(SetupForm)
 
@@ -161,14 +192,16 @@ class Ui_SetupForm(object):
 
     def retranslateUi(self, SetupForm):
         SetupForm.setWindowTitle(QCoreApplication.translate("SetupForm", u"\u914d\u7f6e\u53c2\u6570", None))
-        self.pushButton_cancel.setText(QCoreApplication.translate("SetupForm", u"\u53d6\u6d88", None))
-        self.pushButton_save.setText(QCoreApplication.translate("SetupForm", u"\u4fdd\u5b58", None))
         self.groupBox.setTitle("")
         self.label.setText(QCoreApplication.translate("SetupForm", u"\u539f\u59cb\u6570\u636e\u76ee\u5f55", None))
         self.pushButton_searchFastQDataDirectory.setText(QCoreApplication.translate("SetupForm", u"\u67e5\u627e...", None))
-        self.label_2.setText(QCoreApplication.translate("SetupForm", u"FastQ \u89e3\u6790\u5668", None))
+        self.label_2.setText(QCoreApplication.translate("SetupForm", u"FastQ \u78b1\u57fa\u89e3\u6790\u5668", None))
         self.pushButton_fastQParser.setText(QCoreApplication.translate("SetupForm", u"\u67e5\u627e...", None))
+        self.label_4.setText(QCoreApplication.translate("SetupForm", u"FastQ \u8d28\u91cf\u7edf\u8ba1\u5668", None))
+        self.pushButton_fastqQualityStats.setText(QCoreApplication.translate("SetupForm", u"\u67e5\u627e...", None))
         self.label_3.setText(QCoreApplication.translate("SetupForm", u"FastQC Report \u8f93\u51fa\u76ee\u5f55", None))
         self.pushButton_fastQCDirectory.setText(QCoreApplication.translate("SetupForm", u"\u67e5\u627e...", None))
+        self.pushButton_cancel.setText(QCoreApplication.translate("SetupForm", u"\u53d6\u6d88", None))
+        self.pushButton_save.setText(QCoreApplication.translate("SetupForm", u"\u4fdd\u5b58", None))
     # retranslateUi
 

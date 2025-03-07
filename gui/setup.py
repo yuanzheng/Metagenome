@@ -39,11 +39,12 @@ class SetupWindow(QWidget, Ui_SetupForm):
 
         self.save_signal.emit(config.FASTQ_DATA_DIRECTORY)
         self.logger.debug("Setup, fastQ Data Directory: %s\n" +
-                          "fastqc Report Directory: %s\nand " +
-                          "fastQ Parser ExE file: %s", 
+                          "                             fastqc Report Directory: %s\n" +
+                          "                             fastQ Parser ExE file: %s\n",
                           config.FASTQ_DATA_DIRECTORY, 
                           config.FASTQC_REPORT_DIRECTORY,
-                          config.FASTQ_PARSER_EXE_FILE)
+                          config.FASTQ_PARSER_EXE_FILE
+        )
         self.close()
 
     def cancelSetupWindow(self):

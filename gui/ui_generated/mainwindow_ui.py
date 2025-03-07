@@ -118,11 +118,25 @@ class Ui_MainWindow(object):
 
         self.horizontalLayout_3.addWidget(self.checkBox_total_reads)
 
+        self.checkBox_Q20 = QCheckBox(self.groupBox_fastq_analysis)
+        self.checkBox_Q20.setObjectName(u"checkBox_Q20")
+        self.checkBox_Q20.setFont(font2)
+        self.checkBox_Q20.setChecked(True)
+
+        self.horizontalLayout_3.addWidget(self.checkBox_Q20)
+
+        self.checkBox_Q30 = QCheckBox(self.groupBox_fastq_analysis)
+        self.checkBox_Q30.setObjectName(u"checkBox_Q30")
+        self.checkBox_Q30.setFont(font2)
+        self.checkBox_Q30.setChecked(True)
+
+        self.horizontalLayout_3.addWidget(self.checkBox_Q30)
+
         self.horizontalSpacer = QSpacerItem(40, 20, QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Minimum)
 
         self.horizontalLayout_3.addItem(self.horizontalSpacer)
 
-        self.horizontalLayout_3.setStretch(2, 1)
+        self.horizontalLayout_3.setStretch(4, 1)
 
         self.verticalLayout_7.addWidget(self.groupBox_fastq_analysis)
 
@@ -260,6 +274,8 @@ class Ui_MainWindow(object):
         self.groupBox_fastq_analysis.setTitle(QCoreApplication.translate("MainWindow", u"\u9009\u62e9\u7edf\u8ba1\u9879", None))
         self.checkBox_total_bases.setText(QCoreApplication.translate("MainWindow", u"Total Bases", None))
         self.checkBox_total_reads.setText(QCoreApplication.translate("MainWindow", u"Total Reads", None))
+        self.checkBox_Q20.setText(QCoreApplication.translate("MainWindow", u"Q 20", None))
+        self.checkBox_Q30.setText(QCoreApplication.translate("MainWindow", u"Q 30", None))
         self.button_analysis_start.setText(QCoreApplication.translate("MainWindow", u"\u5f00\u59cb\u5206\u6790", None))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab_rawdata), QCoreApplication.translate("MainWindow", u"\u6d4b\u5e8f\u6570\u636e", None))
         self.pushButton_fastQC_Report.setText(QCoreApplication.translate("MainWindow", u"\u751f\u6210FastQC Report", None))

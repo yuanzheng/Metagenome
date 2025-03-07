@@ -29,6 +29,8 @@ class FastQAnalysisProcessor:
         self.button_analysis_start.clicked.connect(self.start_analysis)
         self.checkBox_total_bases = tab_widget.findChild(QCheckBox, "checkBox_total_bases")
         self.checkBox_total_reads = tab_widget.findChild(QCheckBox, "checkBox_total_reads")
+        self.checkBox_Q20 = tab_widget.findChild(QCheckBox, "checkBox_Q20")
+        self.checkBox_Q30 = tab_widget.findChild(QCheckBox, "checkBox_Q30")
         self.tableWidget_fastq_analysis = tab_widget.findChild(QTableWidget, "tableWidget_fastq_analysis")
         self.progressBar_fastq_analysis = tab_widget.findChild(QProgressBar, "progressBar_fastq_analysis")
         self._thread_pool = ThreadPoolManager()
@@ -132,7 +134,7 @@ class FastQAnalysisProcessor:
             if self.tableWidget_fastq_analysis.item(row, 0).text() == file_id:
                 self.logger.debug("Insert data to table widget row: %s", row)
                 for index in range(1, len(self._table_header)):
-                    text = f"{result[self._table_header[index]]:,}"
+                    text = self._format_value(result, index)
                     self.logger.debug("column for %s", text)
                     item = QTableWidgetItem(text)
                     item.setForeground(Qt.darkGreen)
@@ -270,6 +272,10 @@ class FastQAnalysisProcessor:
             table_header.append(config.FASTQ_TOTAL_READS)
         if self.checkBox_total_bases.isChecked():
             table_header.append(config.FASTQ_TOTAL_BASES)
+        if self.checkBox_Q20.isChecked():
+            table_header.append(config.FASTQ_PHRED_Q20)
+        if self.checkBox_Q30.isChecked():
+            table_header.append(config.FASTQ_PHRED_Q30)
         # 准备表格
         self.tableWidget_fastq_analysis.setColumnCount(len(table_header))
         self.tableWidget_fastq_analysis.setHorizontalHeaderLabels(table_header)
@@ -302,12 +308,20 @@ class FastQAnalysisProcessor:
             self.logger.debug("Table widget in row %s for file: %s", row, self.tableWidget_fastq_analysis.item(row, 0).text())
             if existing[self._table_header[0]] == self.tableWidget_fastq_analysis.item(row, 0).text():
                 for index in range(1, len(self._table_header)):
-                    text = f"{int(existing[self._table_header[index]]):,}"
+                    text = self._format_value(existing, index)
                     self.logger.debug("column for %s", text)
                     item = QTableWidgetItem(text)
                     item.setForeground(Qt.darkGreen)
                     self.tableWidget_fastq_analysis.setItem(row, index, item)
                 break
+
+    def _format_value(self, existing, index):
+        value = existing[self._table_header[index]]
+        if isinstance(value, (int, float)):
+            text = f"{value:,}"
+        else:
+            text = f"{value}"
+        return text
 
     def _statistics_exist(self, file_id):
         if self._csv_handler.has_file_id(file_id):
