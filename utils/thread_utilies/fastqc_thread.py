@@ -86,6 +86,8 @@ class FastQCThread(QThread):
         
         if "Started analysis" in text:
             self.task_counter += 1
+            self.proccess_percentage = int(self.task_counter/2)
+            self.progress_signal.emit(self.proccess_percentage)
             return
         
         if "Analysis complete" in text:

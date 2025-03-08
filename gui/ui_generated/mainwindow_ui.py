@@ -185,6 +185,8 @@ class Ui_MainWindow(object):
         self.pushButton_fastQC_Report = QPushButton(self.verticalLayoutWidget_2)
         self.pushButton_fastQC_Report.setObjectName(u"pushButton_fastQC_Report")
         self.pushButton_fastQC_Report.setEnabled(True)
+        self.pushButton_fastQC_Report.setFont(font2)
+        self.pushButton_fastQC_Report.setStyleSheet(u"background-color: rgb(5, 155, 72);")
 
         self.verticalLayout_3.addWidget(self.pushButton_fastQC_Report)
 
@@ -241,7 +243,7 @@ class Ui_MainWindow(object):
         MainWindow.setCentralWidget(self.centralwidget)
         self.menubar = QMenuBar(MainWindow)
         self.menubar.setObjectName(u"menubar")
-        self.menubar.setGeometry(QRect(0, 0, 899, 24))
+        self.menubar.setGeometry(QRect(0, 0, 899, 22))
         self.menu = QMenu(self.menubar)
         self.menu.setObjectName(u"menu")
         self.menu_2 = QMenu(self.menubar)
@@ -259,7 +261,7 @@ class Ui_MainWindow(object):
 
         self.retranslateUi(MainWindow)
 
-        self.tabWidget.setCurrentIndex(0)
+        self.tabWidget.setCurrentIndex(1)
 
 
         QMetaObject.connectSlotsByName(MainWindow)

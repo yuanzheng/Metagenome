@@ -1,11 +1,12 @@
 import os
+import re
 import glob
 import config.config as config
 import logging
 import zipfile
 from pathlib import Path
 from PySide6.QtCore import Qt, Slot, QByteArray, QSize
-from PySide6.QtWidgets import QLabel, QRadioButton, QListWidget, QProgressBar
+from PySide6.QtWidgets import QLabel, QPushButton, QButtonGroup, QRadioButton, QListWidget, QProgressBar, QMessageBox
 from PySide6.QtSvg import QSvgRenderer
 from utils.thread_utilies.fastqc_thread import FastQCThread
 from PySide6.QtGui import QPixmap, QImage, QPainter
@@ -18,9 +19,13 @@ class FastQCReportProcessor:
         self.logger = logging.getLogger(self.__class__.__name__)
         self.tab_widget = tab_widget
         self.output_dir = ""
+        self.pushButton_fastQC_Report = tab_widget.findChild(QPushButton, "pushButton_fastQC_Report")
+        self.pushButton_fastQC_Report.clicked.connect(self.generate_fastqc_report)
+        
         self.radioButton_base_seq_quality = tab_widget.findChild(QRadioButton, "radioButton_base_seq_quality")
         self.radioButton_base_seq_content = tab_widget.findChild(QRadioButton, "radioButton_base_seq_content")
         self.listWidget_fastqcreport = tab_widget.findChild(QListWidget, "listWidget_fastqcreport")
+        self.listWidget_fastqcreport.currentRowChanged.connect(self.display_image_for_fastqc_report)
         self.label_image = tab_widget.findChild(QLabel, "label_image")
         self.progress_bar = tab_widget.findChild(QProgressBar, "progressBar_fastqc")
 
@@ -32,7 +37,7 @@ class FastQCReportProcessor:
         
         # Open the output directory and load zip file names to listwidget
         # check if directory exists, and if directory is empty
-        if not self.list_fastqc_report(self.output_dir):
+        if not self._list_fastqc_report(self.output_dir):
             self.logger.debug("Run FastQC script to generate reports")
             self.listWidget_fastqcreport.clear()
             # Run FastQC script
@@ -40,6 +45,7 @@ class FastQCReportProcessor:
             input_files = glob.glob(os.path.join(config.FASTQ_DATA_DIRECTORY, "*.fastq.gz"))
             if not input_files:
                 self.logger.error("No .fastq.gz files found in " + config.FASTQ_DATA_DIRECTORY + "\n")
+                QMessageBox.critical(self.tab_widget, "错误", "No .fastq.gz files found, 请先设置FASTQ文件所在目录路径")
                 return
             # 启动线程
             thread = FastQCThread(input_files, self.output_dir)
@@ -52,7 +58,9 @@ class FastQCReportProcessor:
             thread.finished_signal.connect(self.show_new_files)
             thread.start()
             # 将当前线程放入线程池。在关闭app时确保所有线程被终止
-            config.threads.append(thread)            
+            config.threads.append(thread)  
+            self.progress_bar.setValue(0.5)
+            self.pushButton_fastQC_Report.setEnabled(False)    
 
     @Slot()
     def clickon_radio_button(self):
@@ -85,6 +93,7 @@ class FastQCReportProcessor:
             imageFile = self.selected_radio_button()
             self.load_zip(zip_path, imageFile)
 
+    @Slot(str)
     def update_output(self, text):
         self.logger.info("update_output - %s", text)
         if text is None:
@@ -93,13 +102,16 @@ class FastQCReportProcessor:
         if "Error" in text:
             self.logger.error("update_output - %s", text)
             return
-        
+
+    @Slot(str)    
     def show_new_files(self, status):
         self.logger.debug("Thread is done!")
         if status == "Successfull":
-            self.list_fastqc_report(self.output_dir)
+            self._list_fastqc_report(self.output_dir)
         else:
             self.listWidget_fastqcreport.addItem("没有找到fastqc report!")
+            
+        self.pushButton_fastQC_Report.setEnabled(True)    
 
     def file_filter(self, files, extensions):
         results = []
@@ -110,14 +122,14 @@ class FastQCReportProcessor:
                     results.append(file)
         return results
     
-    def list_fastqc_report(self, fastqc_report_directory):
+    def _list_fastqc_report(self, fastqc_report_directory):
         self.logger.debug("Fastqc report directory: %s", fastqc_report_directory)
         extensions = [config.FASTQC_REPORT_EXTENSION]
         try:
             if Path.exists(fastqc_report_directory):
-                fileNames = self.file_filter(os.listdir(fastqc_report_directory), extensions)
+                sorted_fileNames = sorted(self.file_filter(os.listdir(fastqc_report_directory), extensions), key=self._filename_sort_key)
                 self.listWidget_fastqcreport.clear()
-                for fileName in fileNames:
+                for fileName in sorted_fileNames:
                     self.listWidget_fastqcreport.addItem(fileName)
             self.logger.debug("Number of items: %s", self.listWidget_fastqcreport.count())
             
@@ -131,6 +143,16 @@ class FastQCReportProcessor:
             self.logger.exception("An error occurred while opening the selected directory: %s\n", e)
 
         return False
+    
+    def _filename_sort_key(self, filename):
+        """提取文件名中前两个独立数字作为排序依据"""
+        numbers = list(map(int, re.findall(r'\d+', filename)))
+        
+        # 处理数字不足的情况
+        if len(numbers) < 2:
+            # 如果没有足够数字，将缺失值设为无穷大(确保排在最后)
+            return (numbers[0], float('inf')) if numbers else (float('inf'), float('inf'))
+        return (numbers[0], numbers[1])
 
     def load_zip(self, zip_path, image_file_name):
         """安全加载ZIP文件"""
