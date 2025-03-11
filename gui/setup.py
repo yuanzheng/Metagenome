@@ -18,6 +18,8 @@ class SetupWindow(QWidget, Ui_SetupForm):
         self.lineEdit_fastQDataDirectory.setText(config.FASTQ_DATA_DIRECTORY)
         self.lineEdit_fastQCReportDirectory.setText(config.FASTQC_REPORT_DIRECTORY)
         self.lineEdit_fastQParser.setText(config.FASTQ_PARSER_EXE_FILE)
+        self.lineEdit_fastqQualityStats.setText(config.FASTQ_QUALITY_STATS_JAR_FILE)
+        self.lineEdit_trimmed_fastq_directory.setText(config.FASTQ_TRIMMED_OUTPUT_DIRECTORY)
 
         self.pushButton_save.clicked.connect(self.saveSetupWindow)
         self.pushButton_cancel.clicked.connect(self.cancelSetupWindow)
@@ -25,6 +27,8 @@ class SetupWindow(QWidget, Ui_SetupForm):
         self.pushButton_searchFastQDataDirectory.clicked.connect(self.getFastQDataDirectory)
         self.pushButton_fastQCDirectory.clicked.connect(self.getFastQCReportDirectory)
         self.pushButton_fastQParser.clicked.connect(self.getFastQParser)
+        self.pushButton_fastqQualityStats.clicked.connect(self.getFastQTrimJar)
+        self.pushButton_search_trimmed_files.clicked.connect(self.getFastQTrimmedOutputDirectory)
        
     def saveSetupWindow(self):
         self.logger.info("Save the setup window")
@@ -40,10 +44,14 @@ class SetupWindow(QWidget, Ui_SetupForm):
         self.save_signal.emit(config.FASTQ_DATA_DIRECTORY)
         self.logger.debug("Setup, fastQ Data Directory: %s\n" +
                           "                             fastqc Report Directory: %s\n" +
-                          "                             fastQ Parser ExE file: %s\n",
+                          "                             fastQ Parser ExE file: %s\n" +
+                          "                             fastQ Trimmomatic jar file: %s\n" +
+                          "                             fastQ Trimmed output directory: %s\n",
                           config.FASTQ_DATA_DIRECTORY, 
                           config.FASTQC_REPORT_DIRECTORY,
-                          config.FASTQ_PARSER_EXE_FILE
+                          config.FASTQ_PARSER_EXE_FILE,
+                          config.FASTQ_QUALITY_STATS_JAR_FILE,
+                          config.FASTQ_TRIMMED_OUTPUT_DIRECTORY
         )
         self.close()
 
@@ -66,6 +74,14 @@ class SetupWindow(QWidget, Ui_SetupForm):
 
     def selectDirectory(self):
         return QFileDialog.getExistingDirectory(self, "Select a directory")
+    
+    def getFastQTrimJar(self):
+        fastQTrimJarFile, _ = QFileDialog.getOpenFileName(self, "select a file")
+        self.lineEdit_fastqQualityStats.setText(fastQTrimJarFile)
+
+    def getFastQTrimmedOutputDirectory(self):
+        fastqTrimmedOutputDirectory = self.selectDirectory()
+        self.lineEdit_trimmed_fastq_directory.setText(fastqTrimmedOutputDirectory)
     
 
 

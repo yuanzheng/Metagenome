@@ -28,7 +28,7 @@ class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
         if not MainWindow.objectName():
             MainWindow.setObjectName(u"MainWindow")
-        MainWindow.resize(902, 796)
+        MainWindow.resize(902, 806)
         sizePolicy = QSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Expanding)
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
@@ -237,11 +237,11 @@ class Ui_MainWindow(object):
         self.verticalLayout_4.addWidget(self.label_image)
 
         self.tabWidget.addTab(self.tab_fastqcreport, "")
-        self.tab_3 = QWidget()
-        self.tab_3.setObjectName(u"tab_3")
-        self.verticalLayoutWidget = QWidget(self.tab_3)
+        self.tab_trimFastQ = QWidget()
+        self.tab_trimFastQ.setObjectName(u"tab_trimFastQ")
+        self.verticalLayoutWidget = QWidget(self.tab_trimFastQ)
         self.verticalLayoutWidget.setObjectName(u"verticalLayoutWidget")
-        self.verticalLayoutWidget.setGeometry(QRect(20, 10, 814, 688))
+        self.verticalLayoutWidget.setGeometry(QRect(20, 10, 814, 681))
         self.verticalLayout_2 = QVBoxLayout(self.verticalLayoutWidget)
         self.verticalLayout_2.setObjectName(u"verticalLayout_2")
         self.verticalLayout_2.setContentsMargins(0, 0, 0, 0)
@@ -485,6 +485,7 @@ class Ui_MainWindow(object):
         self.label_9 = QLabel(self.verticalLayoutWidget_9)
         self.label_9.setObjectName(u"label_9")
         self.label_9.setMaximumSize(QSize(100, 20))
+        self.label_9.setAlignment(Qt.AlignmentFlag.AlignRight|Qt.AlignmentFlag.AlignTrailing|Qt.AlignmentFlag.AlignVCenter)
 
         self.horizontalLayout_11.addWidget(self.label_9)
 
@@ -506,6 +507,7 @@ class Ui_MainWindow(object):
         self.label_10 = QLabel(self.verticalLayoutWidget_9)
         self.label_10.setObjectName(u"label_10")
         self.label_10.setMaximumSize(QSize(100, 20))
+        self.label_10.setAlignment(Qt.AlignmentFlag.AlignRight|Qt.AlignmentFlag.AlignTrailing|Qt.AlignmentFlag.AlignVCenter)
 
         self.horizontalLayout_12.addWidget(self.label_10)
 
@@ -533,6 +535,7 @@ class Ui_MainWindow(object):
         self.label_8.setSizePolicy(sizePolicy1)
         self.label_8.setMinimumSize(QSize(80, 0))
         self.label_8.setMaximumSize(QSize(80, 20))
+        self.label_8.setAlignment(Qt.AlignmentFlag.AlignRight|Qt.AlignmentFlag.AlignTrailing|Qt.AlignmentFlag.AlignVCenter)
 
         self.leading_widget.addWidget(self.label_8)
 
@@ -557,6 +560,7 @@ class Ui_MainWindow(object):
         self.label_11.setSizePolicy(sizePolicy1)
         self.label_11.setMinimumSize(QSize(80, 0))
         self.label_11.setMaximumSize(QSize(80, 20))
+        self.label_11.setAlignment(Qt.AlignmentFlag.AlignRight|Qt.AlignmentFlag.AlignTrailing|Qt.AlignmentFlag.AlignVCenter)
 
         self.horizontalLayout_13.addWidget(self.label_11)
 
@@ -584,6 +588,7 @@ class Ui_MainWindow(object):
         self.label_12.setSizePolicy(sizePolicy3)
         self.label_12.setMinimumSize(QSize(80, 0))
         self.label_12.setMaximumSize(QSize(80, 20))
+        self.label_12.setAlignment(Qt.AlignmentFlag.AlignRight|Qt.AlignmentFlag.AlignTrailing|Qt.AlignmentFlag.AlignVCenter)
 
         self.horizontalLayout_14.addWidget(self.label_12)
 
@@ -608,6 +613,7 @@ class Ui_MainWindow(object):
         self.label_13.setSizePolicy(sizePolicy1)
         self.label_13.setMinimumSize(QSize(80, 0))
         self.label_13.setMaximumSize(QSize(80, 20))
+        self.label_13.setAlignment(Qt.AlignmentFlag.AlignRight|Qt.AlignmentFlag.AlignTrailing|Qt.AlignmentFlag.AlignVCenter)
 
         self.horizontalLayout_15.addWidget(self.label_13)
 
@@ -632,6 +638,7 @@ class Ui_MainWindow(object):
         self.label_14.setSizePolicy(sizePolicy1)
         self.label_14.setMinimumSize(QSize(80, 0))
         self.label_14.setMaximumSize(QSize(80, 20))
+        self.label_14.setAlignment(Qt.AlignmentFlag.AlignRight|Qt.AlignmentFlag.AlignTrailing|Qt.AlignmentFlag.AlignVCenter)
 
         self.horizontalLayout_16.addWidget(self.label_14)
 
@@ -656,6 +663,7 @@ class Ui_MainWindow(object):
         self.label_15.setSizePolicy(sizePolicy1)
         self.label_15.setMinimumSize(QSize(80, 0))
         self.label_15.setMaximumSize(QSize(80, 20))
+        self.label_15.setAlignment(Qt.AlignmentFlag.AlignRight|Qt.AlignmentFlag.AlignTrailing|Qt.AlignmentFlag.AlignVCenter)
 
         self.horizontalLayout_17.addWidget(self.label_15)
 
@@ -677,6 +685,7 @@ class Ui_MainWindow(object):
         self.label_16 = QLabel(self.verticalLayoutWidget)
         self.label_16.setObjectName(u"label_16")
         self.label_16.setMaximumSize(QSize(100, 20))
+        self.label_16.setAlignment(Qt.AlignmentFlag.AlignRight|Qt.AlignmentFlag.AlignTrailing|Qt.AlignmentFlag.AlignVCenter)
 
         self.horizontalLayout_18.addWidget(self.label_16)
 
@@ -769,6 +778,7 @@ class Ui_MainWindow(object):
         self.groupBox_trim_cmd_preview.setObjectName(u"groupBox_trim_cmd_preview")
         sizePolicy.setHeightForWidth(self.groupBox_trim_cmd_preview.sizePolicy().hasHeightForWidth())
         self.groupBox_trim_cmd_preview.setSizePolicy(sizePolicy)
+        self.groupBox_trim_cmd_preview.setAlignment(Qt.AlignmentFlag.AlignLeading|Qt.AlignmentFlag.AlignLeft|Qt.AlignmentFlag.AlignVCenter)
         self.textEdit_trim_cmd_preview = QTextEdit(self.groupBox_trim_cmd_preview)
         self.textEdit_trim_cmd_preview.setObjectName(u"textEdit_trim_cmd_preview")
         self.textEdit_trim_cmd_preview.setGeometry(QRect(10, 30, 701, 31))
@@ -778,11 +788,11 @@ class Ui_MainWindow(object):
 
         self.verticalLayout_2.addLayout(self.gridLayout)
 
-        self.progressBar = QProgressBar(self.verticalLayoutWidget)
-        self.progressBar.setObjectName(u"progressBar")
-        self.progressBar.setValue(0)
+        self.progressBar_trim_tab = QProgressBar(self.verticalLayoutWidget)
+        self.progressBar_trim_tab.setObjectName(u"progressBar_trim_tab")
+        self.progressBar_trim_tab.setValue(0)
 
-        self.verticalLayout_2.addWidget(self.progressBar)
+        self.verticalLayout_2.addWidget(self.progressBar_trim_tab)
 
         self.horizontalLayout_19 = QHBoxLayout()
         self.horizontalLayout_19.setObjectName(u"horizontalLayout_19")
@@ -828,14 +838,14 @@ class Ui_MainWindow(object):
         self.verticalLayout_2.addLayout(self.horizontalLayout_19)
 
         self.verticalLayout_2.setStretch(3, 1)
-        self.tabWidget.addTab(self.tab_3, "")
+        self.tabWidget.addTab(self.tab_trimFastQ, "")
 
         self.verticalLayout.addWidget(self.tabWidget)
 
         MainWindow.setCentralWidget(self.centralwidget)
         self.menubar = QMenuBar(MainWindow)
         self.menubar.setObjectName(u"menubar")
-        self.menubar.setGeometry(QRect(0, 0, 902, 24))
+        self.menubar.setGeometry(QRect(0, 0, 902, 22))
         self.menu = QMenu(self.menubar)
         self.menu.setObjectName(u"menu")
         self.menu_2 = QMenu(self.menubar)
@@ -902,7 +912,7 @@ class Ui_MainWindow(object):
         self.groupBox_trim_cmd_preview.setTitle(QCoreApplication.translate("MainWindow", u"\u547d\u4ee4\u9884\u89c8\u533a", None))
         self.label_17.setText(QCoreApplication.translate("MainWindow", u"\u8d28\u63a7\u540e\u6570\u636e\uff1a", None))
         self.groupBox_2.setTitle(QCoreApplication.translate("MainWindow", u"\u8d28\u63a7\u540e\u6570\u636e\u91cf\u7edf\u8ba1", None))
-        self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab_3), QCoreApplication.translate("MainWindow", u"Trim\u8d28\u63a7", None))
+        self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab_trimFastQ), QCoreApplication.translate("MainWindow", u"Trim\u8d28\u63a7", None))
         self.menu.setTitle(QCoreApplication.translate("MainWindow", u"\u6587\u4ef6", None))
         self.menu_2.setTitle(QCoreApplication.translate("MainWindow", u"\u5de5\u5177", None))
     # retranslateUi

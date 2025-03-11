@@ -5,6 +5,7 @@ from gui.ui_generated.mainwindow_ui import Ui_MainWindow
 from gui.setup import SetupWindow
 from core.fastq_analysis.fastq_analysis import FastQAnalysisProcessor
 from core.fastq_analysis.fastqc_report import FastQCReportProcessor
+from core.fastq_cleaning.fastq_trim import FastQTrimProcessor
 from utils.thread_utilies.thread_pool import app_state
 from utils.thread_utilies.thread_pool import ThreadPoolManager
 
@@ -27,11 +28,15 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.fastQC_tab_logic = FastQCReportProcessor(self.tab_fastqcreport)
         self.fastqcRadioButtonGroup.buttonToggled.connect(self.fastQC_tab_logic.clickon_radio_button)
 
+        # Initialize tab Trim
+        self.fastq_trim_tab_logic = FastQTrimProcessor(self.tab_trimFastQ)
+
         
     def editSetup(self):
         self.setup = SetupWindow()
         self.setup.show()
         self.setup.save_signal.connect(self.fastQ_analysis_tab_logic.list_fastq_files)
+        self.setup.save_signal.connect(self.fastq_trim_tab_logic.list_fastq_files)
 
     def closeEvent(self, event):
          # 设置全局退出标志
