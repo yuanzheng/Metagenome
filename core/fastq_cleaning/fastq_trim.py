@@ -4,7 +4,7 @@ from collections import defaultdict
 from PySide6.QtCore import Qt, Slot
 from PySide6.QtWidgets import (
     QListWidgetItem, QListWidget, QPushButton, 
-    QProgressBar, QComboBox, QMessageBox, QTableWidget, QTableWidgetItem,
+    QProgressBar, QComboBox, QSpinBox, QMessageBox, QTableWidget, QTableWidgetItem,
     QCheckBox, QHeaderView)
 import logging
 import config.config as config
@@ -33,6 +33,61 @@ class FastQTrimProcessor:
         self.comboBox_trim_paired_end.addItems(config.FASTQ_TRIM_OPTIONS)
         self.comboBox_trim_paired_end.currentTextChanged.connect(self._option_text_changed)
         self._trim_option = ""
+
+        self.spinBox_trim_window_size = tab_widget.findChild(QSpinBox, "spinBox_trim_window_size")
+        self.spinBox_trim_window_size.valueChanged.connect(self.update_param_values)
+        
+        self.listWidget_trim_params_orders = tab_widget.findChild(QListWidget, "listWidget_trim_params_orders")
+        self.listWidget_trim_params_orders.model().rowsMoved.connect(self.update_param_order)
+
+    def _init_order_parameter(self):
+        """根据列表项显示/隐藏对应控件"""
+        for i in range(self.listWidget_trim_params_orders.count()):
+            item = self.listWidget_trim_params_orders.item(i)
+            self.toggle_param_visibility(item.text(), True)
+
+    def toggle_param_visibility(self, param_name, show):
+        """控制参数控件的可见性"""
+        widget_info = self.param_widgets.get(param_name)
+        if widget_info:
+            for widget_name in widget_info:
+                if widget_name:
+                    getattr(self, widget_name).parent().setVisible(show)
+
+    def update_param_order(self):
+        """当拖拽发生时更新参数显示顺序"""
+        current_items = [self.listWidget_trim_params_orders.item(i).text() 
+                        for i in range(self.listWidget_trim_params_orders.count())]
+        
+        # 隐藏所有参数控件
+        for param in self.param_widgets:
+            self.toggle_param_visibility(param, False)
+        
+        # 按新顺序显示控件
+        for param in current_items:
+            self.toggle_param_visibility(param, True)
+
+    def save_parameter_order(self):
+        return [self.listWidget_trim_params_orders.item(i).text() 
+            for i in range(self.listWidget_trim_params_orders.count())]
+
+    def load_parameter_order(self, order_list):
+        self.listWidget_trim_params_orders.clear()
+        self.listWidget_trim_params_orders.addItems(order_list)
+
+    def build_command(self, sample):
+        cmd = [...]  # 基础命令
+        
+        # 按当前顺序添加参数
+        param_order = self.save_parameter_order()
+        for param in param_order:
+            if param == "LEADING":
+                cmd.append(f"LEADING:{self.spin_leading.value()}")
+            elif param == "SLIDINGWINDOW":
+                cmd.append(f"SLIDINGWINDOW:{self.spin_window_size.value()}:{self.spin_quality.value()}")
+            # 其他参数处理...
+        
+        return cmd
 
     @Slot(str)
     def _option_text_changed(self, item):
