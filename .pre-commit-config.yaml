@@ -1,0 +1,54 @@
+# pre-commit 的配置文件，确保你的代码符合 Python 代码规范
+# 使用前请先安装 pre-commit: `pip install pre-commit`
+# 然后在项目中运行 `pre-commit install`
+
+repos:
+  # 1. Black - 代码格式化（PEP 8）
+  - repo: https://github.com/psf/black
+    rev: 24.1.0  # 固定版本，防止更新导致问题
+    hooks:
+      - id: black
+        language_version: python3  # 使用 Python 3 版本
+
+  # 2. Flake8 - 代码风格检查（PEP 8）
+  - repo: https://github.com/pycqa/flake8
+    rev: 6.1.0
+    hooks:
+      - id: flake8
+        args: ["--max-line-length=88"]  # 设定最大行长为 88（与 Black 兼容）
+
+  # 3. isort - 自动排序 import 语句
+  - repo: https://github.com/PyCQA/isort
+    rev: 5.13.2
+    hooks:
+      - id: isort
+        args: ["--profile", "black"]  # 让 isort 兼容 Black 的风格
+
+  # 4. MyPy - 静态类型检查
+  - repo: https://github.com/pre-commit/mirrors-mypy
+    rev: v1.8.0
+    hooks:
+      - id: mypy
+        args: ["--ignore-missing-imports"]  # 忽略缺失的类型提示
+
+  # 5. Bandit - 安全漏洞检查
+  - repo: https://github.com/PyCQA/bandit
+    rev: 1.7.5
+    hooks:
+      - id: bandit
+        args: ["-r", "."]  # 递归扫描整个项目代码
+
+  # 6. Trim Trailing Whitespace - 移除行尾多余空格
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v4.5.0
+    hooks:
+      - id: trailing-whitespace
+        name: Remove trailing whitespace
+      - id: end-of-file-fixer  # 确保文件以换行符结尾
+      - id: check-yaml  # 检查 YAML 文件格式
+
+  # 7. Debug Statements - 检查 print 语句，防止遗留调试代码
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v4.5.0
+    hooks:
+      - id: debug-statements
