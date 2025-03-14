@@ -1,7 +1,9 @@
-import os
 import logging
-import config.config as config
+import os
 from logging.handlers import TimedRotatingFileHandler
+
+import constant_values.config as config
+
 
 def setup_logger():
     """
@@ -18,7 +20,9 @@ def setup_logger():
 
     # Daily backup
     log_file = os.path.join(log_dir, "app.log")
-    file_handler = TimedRotatingFileHandler(log_file, when="midnight", interval=1, backupCount=7)
+    file_handler = TimedRotatingFileHandler(
+        log_file, when="midnight", interval=1, backupCount=7
+    )
     file_handler.setFormatter(formatter)
     file_handler.suffix = "%Y-%m-%d"
 
@@ -36,6 +40,6 @@ def setup_logger():
 
     # custom loggin level for specific module
     module_logger = logging.getLogger("SetupWindow")
-    module_logger.setLevel(config.SETUP_MODULE_LOGGING_LEVEL) 
+    module_logger.setLevel(config.SETUP_MODULE_LOGGING_LEVEL)
 
     return logger

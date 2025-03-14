@@ -1,4 +1,8 @@
 import logging
+from typing import List
+
+from PySide6.QtCore import QThread
+
 FASTQC_REPORT_DIRECTORY = "fastQCreport"
 FASTQ_DATA_DIRECTORY = ""
 FASTQ_PARSER_EXE_FILE = ""
@@ -16,7 +20,13 @@ FASTQC_REPORT_IMAGE_SEQUENCE_CONTENT = "per_base_sequence_content.svg"
 FASTQ_QUALITY_STATS_JAR_FILE = ""
 FASTQ_TRIMMED_OUTPUT_DIRECTORY = "trimmed_reads"
 FASTQ_TRIM_OPTIONS = ["PE", "SE"]
+FASTQ_TRIM_PARAM_MAP = {
+    "LEADING": "LEADING_Widget",
+    "TRAILING": "TRAILING_Widget",
+    "SLIDINGWINDOW": "SLIDINGWINDOW_GroupBox",
+    # 其他参数映射...
+}
 LOGGING_LEVEL = logging.DEBUG
 SETUP_MODULE_LOGGING_LEVEL = logging.DEBUG
 # 保存所有线程
-threads = []
+threads: List[QThread] = []

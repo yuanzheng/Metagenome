@@ -1,10 +1,12 @@
 import csv
-from pathlib import Path
-from collections import defaultdict
+import logging
 import threading
 import time
-import logging
-import config.config as config
+from collections import defaultdict
+from pathlib import Path
+
+import constant_values.config as config
+
 
 class CSVHandler:
     def __init__(self, csv_path, file_name):
@@ -27,8 +29,8 @@ class CSVHandler:
     def _load_existing_data(self):
         if not self.csv_file_path.exists():
             return
-            
-        with open(self.csv_file_path, 'r', newline='') as f:
+
+        with open(self.csv_file_path, "r", newline="") as f:
             reader = csv.DictReader(f)
             for row in reader:
                 file_id = row[config.FASTQ_TOTAL_SAMPLEID]
@@ -48,13 +50,13 @@ class CSVHandler:
                     self.logger.debug("Start to write into csv file for %s", file_id)
                     row_data = {config.FASTQ_TOTAL_SAMPLEID: file_id}
                     row_data.update(field_data)
-                    
+
                     # 写入前先更新内存数据
                     self.data[file_id] = row_data
-                    
+
                     # 追加写入文件
                     file_exists = self.csv_file_path.exists()
-                    with open(self.csv_file_path, 'a', newline='') as f:
+                    with open(self.csv_file_path, "a", newline="") as f:
                         writer = csv.DictWriter(f, fieldnames=field_names)
                         if not file_exists:
                             writer.writeheader()

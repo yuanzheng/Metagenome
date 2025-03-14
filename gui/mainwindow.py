@@ -1,13 +1,15 @@
-import config.config as config
 import logging
+
 from PySide6.QtWidgets import QMainWindow
-from gui.ui_generated.mainwindow_ui import Ui_MainWindow
-from gui.setup import SetupWindow
+
+import constant_values.config as config
 from core.fastq_analysis.fastq_analysis import FastQAnalysisProcessor
 from core.fastq_analysis.fastqc_report import FastQCReportProcessor
-from core.fastq_cleaning.fastq_trim import FastQTrimProcessor
-from utils.thread_utilies.thread_pool import app_state
-from utils.thread_utilies.thread_pool import ThreadPoolManager
+
+# from core.fastq_cleaning.fastq_trim import FastQTrimProcessor
+from gui.setup import SetupWindow
+from gui.ui_generated.mainwindow_ui import Ui_MainWindow
+from utils.thread_utilies.thread_pool import ThreadPoolManager, app_state
 
 
 class MainWindow(QMainWindow, Ui_MainWindow):
@@ -26,12 +28,13 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 
         # Initialize tab FastQC Report
         self.fastQC_tab_logic = FastQCReportProcessor(self.tab_fastqcreport)
-        self.fastqcRadioButtonGroup.buttonToggled.connect(self.fastQC_tab_logic.clickon_radio_button)
+        self.fastqcRadioButtonGroup.buttonToggled.connect(
+            self.fastQC_tab_logic.clickon_radio_button
+        )
 
         # Initialize tab Trim
-        self.fastq_trim_tab_logic = FastQTrimProcessor(self.tab_trimFastQ)
+        # self.fastq_trim_tab_logic = FastQTrimProcessor(self.tab_trimFastQ)
 
-        
     def editSetup(self):
         self.setup = SetupWindow()
         self.setup.show()
@@ -39,10 +42,10 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.setup.save_signal.connect(self.fastq_trim_tab_logic.list_fastq_files)
 
     def closeEvent(self, event):
-         # 设置全局退出标志
+        # 设置全局退出标志
         app_state.request_exit()
         self.thread_pool.stop_all()
-        
+
         """
         重写关闭事件，确保关闭窗口时终止 fastqc 进程
         """
@@ -54,8 +57,3 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                 thread.wait()  # 等待线程结束
         event.accept()  # 接受关闭事件
         super().closeEvent(event)
-
-
-
-
-        
