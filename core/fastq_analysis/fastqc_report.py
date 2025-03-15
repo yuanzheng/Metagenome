@@ -57,40 +57,72 @@ class FastQCReportProcessor:
             Path(config.FASTQ_DATA_DIRECTORY) / config.FASTQC_REPORT_DIRECTORY
         )
 
+        directory = Path(config.FASTQ_DATA_DIRECTORY)
+
         # Open the output directory and load zip file names to listwidget
         # check if directory exists, and if directory is empty
-        if not self._list_fastqc_report(self.output_dir):
-            self.logger.debug("Run FastQC script to generate reports")
-            self.listWidget_fastqcreport.clear()
-            # Run FastQC script
-            # 使用 glob 手动扩展文件列表（跨平台兼容）
-            input_files = glob.glob(
-                os.path.join(config.FASTQ_DATA_DIRECTORY, "*.fastq.gz")
-            )
-            if not input_files:
+        fastqc_report_list = self._list_fastqc_report(self.output_dir)
+        self.logger.debug("Run FastQC script to generate reports")
+        self.listWidget_fastqcreport.clear()
+        self.listWidget_fastqcreport.addItems(fastqc_report_list)
+        # Run FastQC script
+        # 使用 glob 手动扩展文件列表（跨平台兼容）
+        try:
+            if directory.exists():  # Path.exists(fastq_file_directory):
+                input_files = glob.glob(
+                    os.path.join(config.FASTQ_DATA_DIRECTORY, "*.fastq.gz")
+                )
+                if not input_files:
+                    self.logger.error(
+                        "No .fastq.gz files found in "
+                        + config.FASTQ_DATA_DIRECTORY
+                        + "\n"
+                    )
+                    QMessageBox.critical(
+                        self.tab_widget,
+                        "错误",
+                        "No .fastq.gz files found, 请先设置FASTQ文件所在目录路径",
+                    )
+                    return
+
+                input_files = self._filter_fastqc_report(
+                    input_files, fastqc_report_list
+                )
+            else:
                 self.logger.error(
-                    "No .fastq.gz files found in " + config.FASTQ_DATA_DIRECTORY + "\n"
+                    "Directory path "
+                    + config.FASTQ_DATA_DIRECTORY
+                    + " doesn't exist.\n"
                 )
                 QMessageBox.critical(
                     self.tab_widget,
                     "错误",
-                    "No .fastq.gz files found, 请先设置FASTQ文件所在目录路径",
+                    f"{config.FASTQ_DATA_DIRECTORY} not found, 请先设置FASTQ文件所在目录路径",
                 )
                 return
-            # 启动线程
-            thread = FastQCThread(input_files, self.output_dir)
-            thread.output_signal.connect(self.update_output)
-            # Update progress bar
-            thread.progress_signal.connect(self.progress_bar.setValue)
-            # Add zip file name to self.listWidget_fastqcreport
-            # Enable self.radioButton_base_seq_quality
-            # Enable self.radioButton_base_seq_content
-            thread.finished_signal.connect(self.show_new_files)
-            thread.start()
-            # 将当前线程放入线程池。在关闭app时确保所有线程被终止
-            config.threads.append(thread)
-            self.progress_bar.setValue(0.5)
-            self.pushButton_fastQC_Report.setEnabled(False)
+        except Exception as e:
+            self.logger.exception(
+                "An error occurred while opening the selected directory: %s\n", e
+            )
+
+        if not input_files:
+            return
+        self.logger.debug("Files %s for generating fastqc report", input_files)
+
+        # 启动线程
+        thread = FastQCThread(input_files, self.output_dir)
+        thread.output_signal.connect(self.update_output)
+        # Update progress bar
+        thread.progress_signal.connect(self.progress_bar.setValue)
+        # Add zip file name to self.listWidget_fastqcreport
+        # Enable self.radioButton_base_seq_quality
+        # Enable self.radioButton_base_seq_content
+        thread.finished_signal.connect(self.show_new_files)
+        thread.start()
+        # 将当前线程放入线程池。在关闭app时确保所有线程被终止
+        config.threads.append(thread)
+        self.progress_bar.setValue(0.5)
+        self.pushButton_fastQC_Report.setEnabled(False)
 
     @Slot()
     def clickon_radio_button(self):
@@ -155,6 +187,7 @@ class FastQCReportProcessor:
     def _list_fastqc_report(self, fastqc_report_directory):
         self.logger.debug("Fastqc report directory: %s", fastqc_report_directory)
         extensions = [config.FASTQC_REPORT_EXTENSION]
+        sorted_fileNames = []
         try:
             if Path.exists(fastqc_report_directory):
                 sorted_fileNames = sorted(
@@ -162,8 +195,9 @@ class FastQCReportProcessor:
                     key=self._filename_sort_key,
                 )
                 self.listWidget_fastqcreport.clear()
-                for fileName in sorted_fileNames:
-                    self.listWidget_fastqcreport.addItem(fileName)
+                self.logger.debug("Existing fastqc reports: %s", sorted_fileNames)
+                self.listWidget_fastqcreport.addItems(sorted_fileNames)
+
             self.logger.debug(
                 "Number of items: %s", self.listWidget_fastqcreport.count()
             )
@@ -172,14 +206,13 @@ class FastQCReportProcessor:
                 self.radioButton_base_seq_quality.setEnabled(True)
                 self.radioButton_base_seq_quality.setChecked(True)
                 self.radioButton_base_seq_content.setEnabled(True)
-                return True
-            return False
+
+            return sorted_fileNames
         except Exception as e:
             self.logger.exception(
                 "An error occurred while opening the selected directory: %s\n", e
             )
-
-        return False
+        return sorted_fileNames
 
     def _filename_sort_key(self, filename):
         """提取文件名中前两个独立数字作为排序依据"""
@@ -224,6 +257,18 @@ class FastQCReportProcessor:
                 "Please check if fastqc-report zip file "
                 + "includes an Images directory with .svg files",
             )
+
+    def _filter_fastqc_report(self, fastq_file_list, fastqc_report_list):
+        copy_fastq_file_list = fastq_file_list.copy()
+
+        for fastqc_report in fastqc_report_list:
+            common_part = fastqc_report.rsplit("_", 1)[0]
+            # 找到并删除匹配的文件
+            for file in copy_fastq_file_list[:]:
+                file_name = os.path.basename(file)
+                if file_name.startswith(common_part):
+                    copy_fastq_file_list.remove(file)
+        return copy_fastq_file_list
 
     def is_valid_svg(self, filename, image_filename):
         """验证文件名有效性"""
