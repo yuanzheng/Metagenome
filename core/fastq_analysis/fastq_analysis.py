@@ -368,6 +368,9 @@ class FastQAnalysisProcessor:
         value = existing[self._table_header[index]]
         if isinstance(value, (int, float)):
             text = f"{value:,}"
+        elif value.isdigit():
+            num = int(value)
+            text = f"{num:,}"
         else:
             text = f"{value}"
         return text
