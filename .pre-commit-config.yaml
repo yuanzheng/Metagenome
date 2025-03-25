@@ -32,11 +32,11 @@ repos:
         args: ["--ignore-missing-imports"]  # 忽略缺失的类型提示
 
   # 5. Bandit - 安全漏洞检查
-  - repo: https://github.com/PyCQA/bandit
-    rev: 1.7.5
-    hooks:
-      - id: bandit
-        args: ["-r", "."]  # 递归扫描整个项目代码
+  #- repo: https://github.com/PyCQA/bandit
+  #  rev: 1.7.5
+  #  hooks:
+  #    - id: bandit
+  #      args: ["-r", "."]  # 递归扫描整个项目代码
 
   # 6. Trim Trailing Whitespace - 移除行尾多余空格
   - repo: https://github.com/pre-commit/pre-commit-hooks

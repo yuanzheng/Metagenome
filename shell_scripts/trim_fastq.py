@@ -1,6 +1,7 @@
 import os
 import subprocess  # nosec
 import time
+from pathlib import Path
 
 
 def validate_file(path):
@@ -48,23 +49,85 @@ def input_positive_int(prompt):
             print("无效的输入，请输入整数")
 
 
-def select_adapters():
+def find_system_trimmomatic():
+    """检查系统是否安装Trimmomatic并返回路径"""
+    print("检查which命令（Unix系统）")
+    if os.name != "nt":
+        trimmomatic_bin = (
+            subprocess.check_output(["which", "trimmomatic"], stderr=subprocess.DEVNULL)
+            .decode()
+            .strip()
+        )
+        if trimmomatic_bin:
+            jar_path = Path(trimmomatic_bin).resolve().parent / "trimmomatic.jar"
+            adapters_dir = jar_path.parent / "adapters"
+            if jar_path.exists():
+                return str(jar_path), str(adapters_dir)
+
+    print("检查环境变量")
+    env_path = os.environ.get("TRIMMOMATIC_HOME")
+    if env_path:
+        jar_path = Path(env_path) / "trimmomatic.jar"
+        adapters_dir = Path(env_path) / "adapters"
+        if jar_path.exists() and adapters_dir.exists():
+            return str(jar_path), str(adapters_dir)
+
+    print("检查常见安装路径")
+    common_paths = [
+        "/usr/share/trimmomatic",
+        "/usr/local/trimmomatic",
+        "/opt/trimmomatic",
+        Path.home() / ".local/share/trimmomatic",
+    ]
+
+    for path in common_paths:
+        p = Path(path)
+        jar = p / "trimmomatic.jar"
+        adapters = p / "adapters"
+        if jar.exists() and adapters.exists():
+            return str(jar), str(adapters)
+
+    return None, None
+
+
+def get_trimmomatic_paths():
+    """获取Trimmomatic路径"""
+    # 优先使用系统安装版本
+    sys_jar, sys_adapters = find_system_trimmomatic()
+    if sys_jar:
+        print(f"检测到系统安装的Trimmomatic: {sys_jar}")
+        return sys_jar, sys_adapters
+
+    # 使用自带版本
+    local_jar = os.path.join("Trimmomatic-0.36", "trimmomatic-0.36.jar")
     """选择接头文件"""
-    adapter_dir = os.path.join("Trimmomatic-0.36", "adapters")
+    local_adapters = os.path.join("Trimmomatic-0.36", "adapters")
+
+    if not os.path.exists(local_jar):
+        raise FileNotFoundError(
+            f"错误：未找到Trimmomatic JAR文件, 请确保存在 '{local_jar}'"
+        )
 
     # 验证适配器目录
-    if not os.path.exists(adapter_dir):
-        raise FileNotFoundError(f"适配器目录 '{adapter_dir}' 不存在")
-    if not os.path.isdir(adapter_dir):
-        raise ValueError(f"'{adapter_dir}' 不是目录")
+    if not os.path.exists(local_adapters):
+        raise FileNotFoundError(f"适配器目录 '{local_adapters}' 不存在")
+
+    if not os.path.isdir(local_adapters):
+        raise ValueError(f"'{local_adapters}' 不是目录")
+
+    print("使用自带的Trimmomatic版本")
+    return local_jar, local_adapters
+
+
+def select_adapters(adapters_dir):
 
     adapters = [
         f
-        for f in os.listdir(adapter_dir)
-        if os.path.isfile(os.path.join(adapter_dir, f))
+        for f in os.listdir(adapters_dir)
+        if os.path.isfile(os.path.join(adapters_dir, f))
     ]
     if not adapters:
-        raise ValueError(f"适配器目录 '{adapter_dir}' 中没有可用文件")
+        raise ValueError(f"适配器目录 '{adapters_dir}' 中没有可用文件")
 
     print("\n可用的接头文件:")
     for i, adapter in enumerate(adapters, 1):
@@ -75,7 +138,7 @@ def select_adapters():
             choice = int(input("请选择接头文件（输入编号）: "))
             if 1 <= choice <= len(adapters):
                 selected = adapters[choice - 1]
-                return os.path.join(adapter_dir, selected)
+                return os.path.join(adapters_dir, selected)
             print(f"请输入1-{len(adapters)}之间的编号")
         except ValueError:
             print("请输入有效数字")
@@ -193,7 +256,8 @@ def main():
 
     # 接头参数
     try:
-        adapter_file = select_adapters()
+        trimmomatic_jar, adapters_dir = get_trimmomatic_paths()
+        adapter_file = select_adapters(adapters_dir)
     except Exception as e:
         print(f"\n错误: {str(e)}")
         print("请检查Trimmomatic安装是否正确")
@@ -210,9 +274,11 @@ def main():
         clip_params.append("true" if keep_both == "true" else "false")
 
     # 质量参数
-    phred = (
-        "phred33" if input("\n质量编码 (1:phred33, 2:phred64): ") == "1" else "phred64"
+    phred_option = phred = input(
+        "\n质量编码 (1:phred33, 2:phred64), 或放弃添加直接回车键: "
     )
+    if phred_option != "":
+        phred = "-phred33" if phred_option == "1" else "-phred64"
     threads = input_positive_int("线程数: ")
 
     # 自定义参数
@@ -222,12 +288,16 @@ def main():
     cmd = [
         "java",
         "-jar",
-        os.path.join("Trimmomatic-0.36", "trimmomatic-0.36.jar"),
+        trimmomatic_jar,
         read_type,
         "-threads",
         str(threads),
-        "-" + phred,
     ]
+
+    if phred != "":
+        cmd += [
+            phred,
+        ]
 
     # 添加输入输出文件
     if read_type == "PE":
@@ -235,14 +305,14 @@ def main():
         cmd += [
             r1,
             r2,
-            os.path.join(out_dir, f"{base}_R1_paired.fq"),
-            os.path.join(out_dir, f"{base}_R1_unpaired.fq"),
-            os.path.join(out_dir, f"{base}_R2_paired.fq"),
-            os.path.join(out_dir, f"{base}_R2_unpaired.fq"),
+            os.path.join(out_dir, f"{base}_R1_paired.fq.gz"),
+            os.path.join(out_dir, f"{base}_R1_unpaired.fq.gz"),
+            os.path.join(out_dir, f"{base}_R2_paired.fq.gz"),
+            os.path.join(out_dir, f"{base}_R2_unpaired.fq.gz"),
         ]
     else:
         base = os.path.splitext(os.path.basename(se))[0]
-        cmd += [se, os.path.join(out_dir, f"{base}_trimmed.fq")]
+        cmd += [se, os.path.join(out_dir, f"{base}_trimmed.fq.gz")]
 
     # 添加处理参数
     cmd.append(f"ILLUMINACLIP:{':'.join(clip_params)}")

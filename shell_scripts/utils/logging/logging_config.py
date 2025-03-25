@@ -2,7 +2,7 @@ import logging
 import os
 from logging.handlers import TimedRotatingFileHandler
 
-import constant_values.config as config
+import utils.config as config
 
 
 def setup_logger():
@@ -39,7 +39,7 @@ def setup_logger():
     logger.addHandler(console_handler)
 
     # custom logging level for specific module
-    module_logger = logging.getLogger("SetupWindow")
-    module_logger.setLevel(config.SETUP_MODULE_LOGGING_LEVEL)
+    # module_logger = logging.getLogger("SetupWindow")
+    # module_logger.setLevel(config.SETUP_MODULE_LOGGING_LEVEL)
 
     return logger
