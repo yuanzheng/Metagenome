@@ -75,10 +75,95 @@ class FastQAssembly:
         print("\n将运行的命令:")
         print(" \\\n  ".join(self._megahit_cmd) + "\n")
 
+    def stats(self):
+        system_utils.check_tool_installed("seqkit")
+        contig_file = os.path.join(self.output_dir, "final.contigs.fa")
+        seqkit_cmd = ["seqkit", "stats", contig_file, "-N", "50", "-N", "90", "-T"]
+        print("\n运行统计命令:")
+        print(" ".join(seqkit_cmd))
+        subprocess.run(seqkit_cmd)
+
+    def start_megahit_assembly(self):
+        if not self._megahit_cmd:
+            print("megahit command doesn't exist")
+        # 运行并监控进度
+        print("开始运行序列拼接...")
+        process = subprocess.Popen(
+            self._megahit_cmd,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.STDOUT,
+            universal_newlines=True,
+            bufsize=1,
+        )
+
+        # 初始化进度条参数
+        total_k = None
+        current_k = None
+        processed_k = []
+        k_list = []
+        time_elapsed = None
+
+        # 正则表达式模式
+        k_list_pattern = re.compile(r"k list:\s*(\d+(?:,\s*\d+)*)")
+        k_start_pattern = re.compile(r"Assemble contigs from SdBG for k\s*=\s*(\d+)")
+        time_pattern = re.compile(r"Time elapsed:\s+([\d.]+)")
+
+        with tqdm(
+            total=100,
+            desc="序列拼接进度",
+            unit="%",
+            bar_format="{desc}{bar:60}| {n:.0f}% {postfix} [剩余时间:{remaining}]",
+            ncols=100,  # 控制进度条宽度
+            mininterval=0.3,
+        ) as pbar:
+            while True:
+                line = process.stdout.readline()
+                if not line:
+                    if process.poll() is not None:
+                        break
+                    continue
+
+                # 捕获k-list列表
+                if "k list" in line:
+                    match = k_list_pattern.search(line)
+                    if match:
+                        k_list = [int(k.strip()) for k in match.group(1).split(",")]
+                        total_k = len(k_list) + 1
+                        pbar.update(2 - pbar.n)
+                        pbar.set_description(f"序列拼接进度 (共{len(k_list)}个)")
+                        pbar.write(f"Detected k list: {k_list}")
+
+                # 捕获当前k值
+                if "Assemble contigs" in line:
+                    match = k_start_pattern.search(line)
+                    if match:
+                        current_k = int(match.group(1))
+                        if current_k in k_list and current_k not in processed_k:
+                            processed_k.append(current_k)
+                            progress = (
+                                int(round(len(processed_k) / total_k * 100))
+                                if total_k
+                                else 0
+                            )
+                            pbar.update(progress - pbar.n)
+                            pbar.set_postfix_str(f"当前k值: {current_k}", refresh=True)
+
+                # 捕获时间信息
+                if "ALL DONE" in line:
+                    time_match = time_pattern.search(line)
+                    if time_match:
+                        time_elapsed = time_match.group(1)
+                    pbar.update(100 - pbar.n)
+                    break
+        pbar.close()
+        # 显示时间
+        if time_elapsed:
+            print(f"\n总运行时间: {system_utils.format_time(float(time_elapsed))}")
+
 
 def main():
     assembly_process = FastQAssembly()
-    # 步骤1: 检查Megahit安装
+    # 检查Megahit安装
     system_utils.check_tool_installed("megahit")
 
     try:
@@ -98,6 +183,15 @@ def main():
 
         # 创建输出目录
         assembly_process.set_output_dir(input_dir)
+        try:
+            output_dir = system_utils.validate_dir(assembly_process.get_output_dir())
+            if output_dir:
+                print(f"megahit: 输出目录 {output_dir} 已经存在, 所以可以开始统计结果")
+                # 统计结果
+                assembly_process.stats()
+                sys.exit(0)
+        except ValueError:
+            print("")
 
         # 获取线程数
         max_cpus = system_utils.get_cpu_core_numbers()
@@ -128,85 +222,14 @@ def main():
         if input("是否立即运行? (Y/N): ").upper() != "Y":
             print("退出程序。")
             sys.exit(0)
-
-        # 运行并监控进度
-        print("开始运行序列拼接...")
-        process = subprocess.Popen(
-            assembly_process.get_megahit_cmd(),
-            stdout=subprocess.PIPE,
-            stderr=subprocess.STDOUT,
-            universal_newlines=True,
-            bufsize=1,
-        )
-
-        # 初始化进度条参数
-        total_k = None
-        current_k = None
-        processed_k = []
-        k_list = []
-        time_elapsed = None
-
-        # 正则表达式模式
-        k_list_pattern = re.compile(r"k-mer sizes:\s*\[([\d,\s]+)\]")
-        k_start_pattern = re.compile(r"Assembling k=(\d+)")
-        time_pattern = re.compile(r"Time elapsed:\s+([\d.]+)")
-
-        with tqdm(total=100, desc="Assembly Progress", unit="%") as pbar:
-            while True:
-                line = process.stdout.readline()
-                if not line:
-                    if process.poll() is not None:
-                        break
-                    continue
-
-                # 捕获k-mer列表
-                if not k_list:
-                    match = k_list_pattern.search(line)
-                    if match:
-                        k_list = [int(k.strip()) for k in match.group(1).split(",")]
-                        total_k = len(k_list)
-                        pbar.set_description(
-                            f"Assembly Progress (k={max(k_list) if k_list else '?'})"
-                        )
-                        pbar.write(f"Detected k-mer list: {k_list}")
-
-                # 捕获当前k值
-                if not current_k:
-                    match = k_start_pattern.search(line)
-                    if match:
-                        current_k = int(match.group(1))
-                        processed_k.append(current_k)
-                        progress = len(processed_k) / total_k * 100 if total_k else 0
-                        pbar.update(progress - pbar.n)
-                        pbar.set_description(f"Assembling k={current_k}")
-
-                # 捕获时间信息
-                time_match = time_pattern.search(line)
-                if time_match:
-                    time_elapsed = time_match.group(1)
-
-                # 检测k值切换
-                if "Final assembly" in line and total_k:
-                    pbar.update(100 - pbar.n)
-                    break
+        assembly_process.start_megahit_assembly()
     except KeyboardInterrupt:
         print("\n用户中断, 退出程序。")
         sys.exit(1)
 
-    # 步骤10: 显示时间
-    if time_elapsed:
-        print(f"\n总运行时间: {system_utils.format_time(time_elapsed)}")
-
-    # 步骤11: 统计结果
+    # 统计结果
     if input("\n是否统计组装结果? (Y/N): ").upper() == "Y":
-        system_utils.check_tool_installed("seqkit")
-        contig_file = os.path.join(
-            assembly_process.get_output_dir(), "final.contigs.fa"
-        )
-        seqkit_cmd = ["seqkit", "stats", contig_file, "-N", "50", "-N", "90", "-T"]
-        print("\n运行统计命令:")
-        print(" ".join(seqkit_cmd))
-        subprocess.run(seqkit_cmd)
+        assembly_process.stats()
 
 
 if __name__ == "__main__":
