@@ -1,6 +1,5 @@
 import os
 import shutil
-import sys
 
 
 def get_cpu_core_numbers():
@@ -9,8 +8,16 @@ def get_cpu_core_numbers():
 
 def check_tool_installed(tool_name):
     if shutil.which(tool_name) is None:
-        print(f"错误: 未安装 {tool_name}，请先安装后再运行本程序。")
-        sys.exit(1)
+        raise RuntimeError(f"错误: 未安装 {tool_name}，请先安装后再运行本程序。")
+
+
+def validate_file(path):
+    """验证文件路径是否存在且为文件"""
+    if not os.path.exists(path):
+        raise ValueError(f"路径 '{path}' 不存在")
+    if not os.path.isfile(path):
+        raise ValueError(f"'{path}' 是目录而不是文件")
+    return path
 
 
 def find_files(directory, patterns, required=True):
@@ -33,7 +40,20 @@ def validate_dir(path):
         if not os.path.isdir(path):
             raise ValueError(f"'{path}' 是文件而不是目录")
     else:
-        raise ValueError(f"{path}")
+        raise ValueError(f"{path} 不存在！")
+    return path
+
+
+def validate_dir_and_mkdir(path):
+    """验证目录路径，不存在则创建，存在则检查是否为目录"""
+    if os.path.exists(path):
+        if not os.path.isdir(path):
+            raise ValueError(f"'{path}' 是文件而不是目录")
+    else:
+        try:
+            os.makedirs(path, exist_ok=True)
+        except Exception as e:
+            raise ValueError(f"无法创建目录: {str(e)}")
     return path
 
 
@@ -58,6 +78,14 @@ def input_positive_int(prompt):
             print("必须输入正整数")
         except ValueError:
             print("无效的输入，请输入整数")
+
+
+def input_str(prompt):
+    while True:
+        try:
+            return str(input(prompt))
+        except ValueError:
+            print("无效的输入，请再次输入")
 
 
 def format_time(seconds: float) -> str:

@@ -1,10 +1,7 @@
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 import logging
 import os
 import re  # nosec
 import subprocess  # nosec B404: 已通过安全封装处理
-import sys  # nosec
 
 import utils.system_utils as system_utils
 from tqdm import tqdm
@@ -20,6 +17,7 @@ class FastQAssembly:
         self.threads = 1
         self.min_contig_len = 500
         self._megahit_cmd = []
+        self._seqkit_cmd = []
 
     def set_fastq_PE_input_files(self, input_dir):
         # 查找必需文件
@@ -75,19 +73,37 @@ class FastQAssembly:
         print("\n将运行的命令:")
         print(" \\\n  ".join(self._megahit_cmd) + "\n")
 
-    def stats(self):
+    def build_stats_cmd(self, param_list=None):
         system_utils.check_tool_installed("seqkit")
         contig_file = os.path.join(self.output_dir, "final.contigs.fa")
-        seqkit_cmd = ["seqkit", "stats", contig_file, "-N", "50", "-N", "90", "-T"]
-        print("\n运行统计命令:")
-        print(" ".join(seqkit_cmd))
-        subprocess.run(seqkit_cmd)
+        self._seqkit_cmd = [
+            "seqkit",
+            "stats",
+            contig_file,
+        ]
+        if param_list:
+            self._seqkit_cmd += param_list
+
+        return self._seqkit_cmd
+
+    def stats(self):
+        if not self._seqkit_cmd:
+            raise ValueError("seqkit 命令和参数没定义, 请调用buil_stats_cmd")
+        try:
+            result = subprocess.run(
+                self._seqkit_cmd, capture_output=True, text=True, check=True
+            )
+            return result.stdout.strip().split("\n")
+        except subprocess.CalledProcessError as e:
+            self.logger.error(f"\n执行出错: {e}")
+            raise
 
     def start_megahit_assembly(self):
         if not self._megahit_cmd:
-            print("megahit command doesn't exist")
+            self.logger.error("megahit command doesn't exist")
+            raise ValueError("megahit command doesn't exist")
         # 运行并监控进度
-        print("开始运行序列拼接...")
+        self.logger.info("开始运行序列拼接...")
         process = subprocess.Popen(
             self._megahit_cmd,
             stdout=subprocess.PIPE,
@@ -159,78 +175,3 @@ class FastQAssembly:
         # 显示时间
         if time_elapsed:
             print(f"\n总运行时间: {system_utils.format_time(float(time_elapsed))}")
-
-
-def main():
-    assembly_process = FastQAssembly()
-    # 检查Megahit安装
-    system_utils.check_tool_installed("megahit")
-
-    try:
-        while True:
-            # 获取输入目录
-            input_dir = system_utils.input_with_validation(
-                "请输入trimmomatic输出目录绝对路径:",
-                system_utils.validate_dir,
-                "目录不存在，请重新输入。",
-            )
-
-            assembly_process.set_fastq_PE_input_files(input_dir)
-            if not assembly_process.fastq_PE_files_are_valid():
-                print("未找到必需的配对文件，请检查目录内容。")
-            else:
-                break
-
-        # 创建输出目录
-        assembly_process.set_output_dir(input_dir)
-        try:
-            output_dir = system_utils.validate_dir(assembly_process.get_output_dir())
-            if output_dir:
-                print(f"megahit: 输出目录 {output_dir} 已经存在, 所以可以开始统计结果")
-                # 统计结果
-                assembly_process.stats()
-                sys.exit(0)
-        except ValueError:
-            print("")
-
-        # 获取线程数
-        max_cpus = system_utils.get_cpu_core_numbers()
-        try:
-            threads = int(
-                system_utils.input_positive_int(f"请输入线程数 (最大{max_cpus}): ")
-                or max_cpus
-            )
-            threads = min(threads, max_cpus)
-        except ValueError:
-            threads = max_cpus
-        assembly_process.set_thread_numbers(threads)
-
-        # 获取最短contig长度
-        try:
-            min_contig_len = system_utils.input_positive_int("请输入最短contig长度: ")
-        except ValueError:
-            min_contig_len = 500
-        assembly_process.set_min_contig_len(min_contig_len)
-
-        # 构建命令
-        assembly_process.build_megahit_cmd()
-
-        # 显示命令
-        assembly_process.print_cmd()
-
-        # 确认运行
-        if input("是否立即运行? (Y/N): ").upper() != "Y":
-            print("退出程序。")
-            sys.exit(0)
-        assembly_process.start_megahit_assembly()
-    except KeyboardInterrupt:
-        print("\n用户中断, 退出程序。")
-        sys.exit(1)
-
-    # 统计结果
-    if input("\n是否统计组装结果? (Y/N): ").upper() == "Y":
-        assembly_process.stats()
-
-
-if __name__ == "__main__":
-    main()
