@@ -75,92 +75,103 @@ def build_custom_params():
 
 
 def trimmomatic_main():
-    print("=== Trimmomatic 质控程序 ===")
+    print("\n=== Trimmomatic 质控程序 ===")
     trim_process = FastQTrimmomatic()
 
-    # 读取基础参数
-    while True:
-        read_type = input("\n测序类型 (SE/PE): ").upper()
-        if read_type in ["SE", "PE"]:
-            trim_process.set_mode(read_type)
-            break
-        print("无效输入，请选择 SE 或 PE")
+    try:
+        # 读取基础参数
+        while True:
+            read_type = input("测序类型 (SE/PE): ").upper()
+            if read_type in ["SE", "PE"]:
+                trim_process.set_mode(read_type)
+                break
+            print("无效输入，请选择 SE 或 PE")
 
-    # 输入文件路径
-    if read_type == "PE":
-        r1 = system_utils.input_with_validation(
-            "R1文件绝对路径: ", system_utils.validate_file, "请确认文件存在且路径正确"
+        # 输入文件路径
+        if read_type == "PE":
+            r1 = system_utils.input_with_validation(
+                "R1文件绝对路径: ",
+                system_utils.validate_file,
+                "请确认文件存在且路径正确",
+            )
+            r2 = system_utils.input_with_validation(
+                "R2文件绝对路径: ",
+                system_utils.validate_file,
+                "请确认文件存在且路径正确",
+            )
+            trim_process.set_forword_file(r1)
+            trim_process.set_reverse_file(r2)
+        else:
+            se = system_utils.input_with_validation(
+                "FASTQ文件绝对路径: ",
+                system_utils.validate_file,
+                "请确认文件存在且路径正确",
+            )
+            trim_process.set_single_end_file(se)
+
+        # 输出目录
+        out_dir = system_utils.input_with_validation(
+            "\n输出目录绝对路径: ",
+            system_utils.validate_dir_and_mkdir,
+            "请提供有效的目录路径",
         )
-        r2 = system_utils.input_with_validation(
-            "R2文件绝对路径: ", system_utils.validate_file, "请确认文件存在且路径正确"
+        trim_process.set_output_dir(out_dir)
+
+        # 接头参数
+        adapter_file = select_adapters(trim_process.get_adapter_options())
+        trim_process.set_adapter_file(adapter_file)
+
+        mismatch = system_utils.input_positive_int("\n最大错配数: ")
+        palindrome = system_utils.input_positive_int("Palindrome阈值: ")
+        simple = system_utils.input_positive_int("Simple阈值: ")
+        trim_process.set_seed_mismatches(mismatch)
+        trim_process.set_palindrome_clip_threshold(palindrome)
+        trim_process.set_simple_clip_threshold(simple)
+
+        if input("\n添加更多接头参数? (y/N): ").lower() == "y":
+            trim_process.set_min_prefix(
+                system_utils.input_positive_int("最短接头长度: ")
+            )
+            trim_process.set_palindrome_keep_booth(
+                system_utils.input_str("保留双端? (true/false): ").lower()
+            )
+
+        # 质量参数
+        phred_option = phred = input(
+            "\n质量编码 (1:phred33, 2:phred64), 或放弃添加直接回车键: "
         )
-        trim_process.set_forword_file(r1)
-        trim_process.set_reverse_file(r2)
-    else:
-        se = system_utils.input_with_validation(
-            "FASTQ文件绝对路径: ",
-            system_utils.validate_file,
-            "请确认文件存在且路径正确",
-        )
-        trim_process.set_single_end_file(se)
+        if phred_option != "":
+            phred = "-phred33" if phred_option == "1" else "-phred64"
+            trim_process.set_phred_option(phred)
 
-    # 输出目录
-    out_dir = system_utils.input_with_validation(
-        "\n输出目录绝对路径: ",
-        system_utils.validate_dir_and_mkdir,
-        "请提供有效的目录路径",
-    )
-    trim_process.set_output_dir(out_dir)
+        threads = system_utils.input_positive_int("线程数: ")
+        trim_process.set_threads(threads)
 
-    # 接头参数
-    adapter_file = select_adapters(trim_process.get_adapter_options())
-    trim_process.set_adapter_file(adapter_file)
+        # 自定义参数
+        custom_params = build_custom_params()
+        trim_process.set_custom_params(custom_params)
 
-    mismatch = system_utils.input_positive_int("\n最大错配数: ")
-    palindrome = system_utils.input_positive_int("Palindrome阈值: ")
-    simple = system_utils.input_positive_int("Simple阈值: ")
-    trim_process.set_seed_mismatches(mismatch)
-    trim_process.set_palindrome_clip_threshold(palindrome)
-    trim_process.set_simple_clip_threshold(simple)
+        cmd = trim_process._build_cmd()
 
-    if input("\n添加更多接头参数? (y/N): ").lower() == "y":
-        trim_process.set_min_prefix(system_utils.input_positive_int("最短接头长度: "))
-        trim_process.set_palindrome_keep_booth(
-            system_utils.input_str("保留双端? (true/false): ").lower()
-        )
+        # 显示最终命令
+        print("\n生成命令:")
+        print(" ".join(cmd))
 
-    # 质量参数
-    phred_option = phred = input(
-        "\n质量编码 (1:phred33, 2:phred64), 或放弃添加直接回车键: "
-    )
-    if phred_option != "":
-        phred = "-phred33" if phred_option == "1" else "-phred64"
-    trim_process.set_phred_option(phred)
-
-    threads = system_utils.input_positive_int("线程数: ")
-    trim_process.set_threads(threads)
-
-    # 自定义参数
-    custom_params = build_custom_params()
-    trim_process.set_custom_params(custom_params)
-
-    cmd = trim_process._build_cmd()
-
-    # 显示最终命令
-    print("\n生成命令:")
-    print(" ".join(cmd))
-
-    # 确认执行
-    if input("\n是否执行? (Y/N): ").upper() == "Y":
-        start_time = time.time()
-        trim_process.run_trim_process()
-        print("\n处理完成! 输出文件:")
-        for file in os.listdir(trim_process.get_output_dir()):
-            if file.endswith(".fq.gz"):
-                print(f"- {os.path.join(trim_process.get_output_dir(), file)}")
-        # 耗时统计
-        elapsed = time.time() - start_time
-        print(f"\n任务完成 总耗时: {system_utils.format_time(elapsed)}")
-        print(f"查看输出目录: {out_dir}")
-    else:
-        print("\n已取消执行")
+        # 确认执行
+        if input("\n是否执行? (Y/N): ").upper() == "Y":
+            start_time = time.time()
+            trim_process.run_trim_process()
+            print("\n处理完成! 输出文件:")
+            for file in os.listdir(trim_process.get_output_dir()):
+                if file.endswith(".fq.gz"):
+                    print(f"- {os.path.join(trim_process.get_output_dir(), file)}")
+            # 耗时统计
+            elapsed = time.time() - start_time
+            print(f"\n任务完成 总耗时: {system_utils.format_time(elapsed)}")
+            print(f"查看输出目录: {out_dir}")
+        else:
+            print("\n已取消执行")
+    except KeyboardInterrupt:
+        print("\n用户中断, 退出清洗程序。")
+    except Exception as e:
+        raise RuntimeError("清洗过程出错") from e
