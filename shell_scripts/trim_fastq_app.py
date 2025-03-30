@@ -109,14 +109,6 @@ def trimmomatic_main():
             )
             trim_process.set_single_end_file(se)
 
-        # 输出目录
-        out_dir = system_utils.input_with_validation(
-            "\n输出目录绝对路径: ",
-            system_utils.validate_dir_and_mkdir,
-            "请提供有效的目录路径",
-        )
-        trim_process.set_output_dir(out_dir)
-
         # 接头参数
         adapter_file = select_adapters(trim_process.get_adapter_options())
         trim_process.set_adapter_file(adapter_file)
@@ -160,6 +152,7 @@ def trimmomatic_main():
         # 确认执行
         if input("\n是否执行? (Y/N): ").upper() == "Y":
             start_time = time.time()
+            print("开始运行FASTQ文件清洗 ")
             trim_process.run_trim_process()
             print("\n处理完成! 输出文件:")
             for file in os.listdir(trim_process.get_output_dir()):
@@ -168,7 +161,7 @@ def trimmomatic_main():
             # 耗时统计
             elapsed = time.time() - start_time
             print(f"\n任务完成 总耗时: {system_utils.format_time(elapsed)}")
-            print(f"查看输出目录: {out_dir}")
+            print(f"查看输出目录: {trim_process.get_output_dir()}")
         else:
             print("\n已取消执行")
     except KeyboardInterrupt:

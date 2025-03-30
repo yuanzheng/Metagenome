@@ -3,6 +3,8 @@ import os
 import subprocess  # nosec
 from pathlib import Path
 
+import utils.system_utils as system_utils
+
 
 class FastQTrimmomatic:
     def __init__(self):
@@ -212,8 +214,18 @@ class FastQTrimmomatic:
         return f"ILLUMINACLIP:{':'.join(clip_params)}"
 
     def get_input_output_params(self):
+        # create an output directory
+        if self._output_dir is None:
+            file_name_id = system_utils.get_file_name(self._forword_file_path).rsplit(
+                "_", 1
+            )[0]
+            parent_directory = system_utils.get_file_directory(self._forword_file_path)
+            self._output_dir = system_utils.validate_dir_and_mkdir(
+                os.path.join(parent_directory, f"{file_name_id}_trimmedReads")
+            )
+
         if self._mode == "PE":
-            base = os.path.basename(self._forword_file_path).rsplit("_", 1)[0]
+            base = system_utils.get_file_name(self._forword_file_path).rsplit("_", 1)[0]
             return [
                 self._forword_file_path,
                 self._reverse_file_path,
@@ -223,7 +235,9 @@ class FastQTrimmomatic:
                 os.path.join(self._output_dir, f"{base}_R2_unpaired.fq.gz"),
             ]
 
-        base = os.path.splitext(os.path.basename(self._single_end_file_path))[0]
+        base = os.path.splitext(system_utils.get_file_name(self._single_end_file_path))[
+            0
+        ]
         return [
             self._single_end_file_path,
             os.path.join(self._output_dir, f"{base}_trimmed.fq.gz"),
@@ -231,7 +245,24 @@ class FastQTrimmomatic:
 
     def run_trim_process(self):
         try:
-            subprocess.run(self._build_cmd(), shell=False, check=True)  # nosec
+            # subprocess.run(self._build_cmd(), shell=False, check=True)  # nosec
+            process = subprocess.Popen(
+                self._build_cmd(),
+                stdout=subprocess.PIPE,
+                stderr=subprocess.STDOUT,
+                universal_newlines=True,
+                bufsize=1,
+                shell=False,
+            )
+
+            while True:
+                line = process.stdout.readline()
+                if not line:
+                    if process.poll() is not None:
+                        break
+                    continue
+                self.logger.info(line.strip())
+
             self.logger.info("处理完成! 输出文件:")
             for file in os.listdir(self._output_dir):
                 if file.endswith(".fq.gz"):

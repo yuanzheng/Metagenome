@@ -1,5 +1,20 @@
 import os
 import shutil
+from pathlib import Path
+
+
+def get_current_project_dir():
+    return os.path.dirname(os.path.abspath(__file__))
+
+
+def get_file_directory(file_abs_path: str):
+    if os.path.isabs(file_abs_path):
+        return Path(file_abs_path).resolve().parent
+    raise ValueError(f"'{file_abs_path}' 不是绝对路径")
+
+
+def get_file_name(file_path):
+    return os.path.basename(file_path)
 
 
 def get_cpu_core_numbers():
@@ -15,6 +30,8 @@ def validate_file(path):
     """验证文件路径是否存在且为文件"""
     if not os.path.exists(path):
         raise ValueError(f"路径 '{path}' 不存在")
+    if not os.path.isabs(path):
+        raise ValueError(f"路径 '{path}' 不是绝对路径")
     if not os.path.isfile(path):
         raise ValueError(f"'{path}' 是目录而不是文件")
     return path
