@@ -69,10 +69,6 @@ class FastQAssembly:
     def get_megahit_cmd(self):
         return self._megahit_cmd
 
-    def print_cmd(self):
-        print("\n将运行的命令:")
-        print(" \\\n  ".join(self._megahit_cmd) + "\n")
-
     def _build_stats_cmd(self, param_list=None):
         system_utils.check_tool_installed("seqkit")
         contig_file = os.path.join(self.output_dir, "final.contigs.fa")

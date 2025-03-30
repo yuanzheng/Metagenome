@@ -88,7 +88,8 @@ def assembly_main():
         assembly_process.build_megahit_cmd()
 
         # 显示命令
-        assembly_process.print_cmd()
+        print("\n将运行的命令:")
+        print(" \\\n  ".join(assembly_process.get_megahit_cmd) + "\n")
 
         # 确认运行
         if input("是否立即运行? (Y/N): ").upper() != "Y":
@@ -112,3 +113,12 @@ def assembly_main():
         print("\n用户中断, 退出组装程序。")
     except Exception as e:
         print(f"组装过程出错, {e}")
+
+
+def assembly_contig_length():
+    try:
+        print("=== 组装结果contig长度分布图 ===")
+    except KeyboardInterrupt:
+        print("\n用户中断, 退出生成柱状图(contig distribution)程序。")
+    except Exception as e:
+        print(f"生成柱状图(contig distribution)过程出错, {e}")
