@@ -99,7 +99,7 @@ def assembly_main():
         system_utils.check_tool_installed("megahit")
 
         print("开始运行序列拼接...")
-        assembly_process.start_megahit_assembly()
+        assembly_process.start_megahit_assembly(True)
 
         # 统计结果
         if input("\n是否统计组装结果? (Y/N): ").upper() == "Y":
