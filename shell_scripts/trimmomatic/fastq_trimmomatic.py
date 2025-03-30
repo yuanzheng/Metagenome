@@ -103,9 +103,9 @@ class FastQTrimmomatic:
             print("")
 
         # 使用自带版本
-        local_jar = os.path.join("../Trimmomatic-0.36", "trimmomatic-0.36.jar")
+        local_jar = os.path.join("Trimmomatic-0.39", "trimmomatic-0.39.jar")
         """选择接头文件"""
-        local_adapters = os.path.join("../Trimmomatic-0.36", "adapters")
+        local_adapters = os.path.join("Trimmomatic-0.39", "adapters")
 
         if not os.path.exists(local_jar):
             raise FileNotFoundError(
@@ -232,10 +232,13 @@ class FastQTrimmomatic:
     def run_trim_process(self):
         try:
             subprocess.run(self._build_cmd(), shell=False, check=True)  # nosec
-            self.logger.info("\n处理完成! 输出文件:")
+            self.logger.info("处理完成! 输出文件:")
             for file in os.listdir(self._output_dir):
-                if file.endswith(".fq"):
+                if file.endswith(".fq.gz"):
                     self.logger.info(f"- {os.path.join(self._output_dir, file)}")
         except subprocess.CalledProcessError as e:
-            self.logger.error(f"\n执行出错: {e}")
+            self.logger.error(f"\nTrimmomatic清洗 - 执行出错: {e}")
+            raise
+        except Exception as e:
+            self.logger.error(f"\nTrimmomatic清洗 - 执行出错: {e}")
             raise
