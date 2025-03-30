@@ -17,6 +17,8 @@ if __name__ == "__main__":
                 "2": "组装数据（序列拼接）",
                 "3": "退出",
             }
+
+            print("\n\n")
             for key, value in options.items():
                 print(f"{key}: {value}")
 

@@ -36,7 +36,7 @@ def setup_logger():
 
     # Add logging handler
     logger.addHandler(file_handler)
-    logger.addHandler(console_handler)
+    # logger.addHandler(console_handler)
 
     # custom logging level for specific module
     # module_logger = logging.getLogger("SetupWindow")

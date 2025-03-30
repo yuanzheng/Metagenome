@@ -17,7 +17,6 @@ class FastQAssembly:
         self.threads = 1
         self.min_contig_len = 500
         self._megahit_cmd = []
-        self._seqkit_cmd = []
 
     def set_fastq_PE_input_files(self, input_dir):
         # 查找必需文件
@@ -73,30 +72,34 @@ class FastQAssembly:
         print("\n将运行的命令:")
         print(" \\\n  ".join(self._megahit_cmd) + "\n")
 
-    def build_stats_cmd(self, param_list=None):
+    def _build_stats_cmd(self, param_list=None):
         system_utils.check_tool_installed("seqkit")
         contig_file = os.path.join(self.output_dir, "final.contigs.fa")
-        self._seqkit_cmd = [
+        seqkit_cmd = [
             "seqkit",
             "stats",
             contig_file,
         ]
         if param_list:
-            self._seqkit_cmd += param_list
+            seqkit_cmd += param_list
 
-        return self._seqkit_cmd
+        return seqkit_cmd
 
-    def stats(self):
-        if not self._seqkit_cmd:
-            raise ValueError("seqkit 命令和参数没定义, 请调用buil_stats_cmd")
+    def stats(self, param_list=None):
         try:
+            seqkit_cmd = self._build_stats_cmd(param_list)
+            self.logger.info("运行统计命令:")
+            self.logger.info(" ".join(seqkit_cmd))
             result = subprocess.run(
-                self._seqkit_cmd, capture_output=True, text=True, check=True
+                seqkit_cmd, capture_output=True, text=True, check=True
             )
             return result.stdout.strip().split("\n")
         except subprocess.CalledProcessError as e:
-            self.logger.error(f"\n执行出错: {e}")
-            raise
+            self.logger.error(f"执行出错: {e}")
+            raise RuntimeError(f"seqkit 执行出错: {e}") from e
+        except RuntimeError as e:
+            self.logger.error(f"执行出错: {e}")
+            raise Exception(f"执行出错: {e}") from e
 
     def start_megahit_assembly(self):
         if not self._megahit_cmd:

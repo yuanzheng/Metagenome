@@ -22,20 +22,19 @@ def print_stats_result(data):
 
     # 格式化输出
     print(f"SampleID: {sample_id}")
-    print(f"Number:    {stats['num_seqs']:>10}")
-    print(f"Lenght:      {stats['sum_len']:>12}")
-    print(f"N50:            {stats['N50']:>8}")
-    print(f"N90:            {stats['N90']:>8}")
-    print(f"Max:            {stats['max_len']:>8}")
-    print(f"Min:              {stats['min_len']:>8}")
+    print(f"Number:   {stats['num_seqs']:>10}")
+    print(f"Lenght:   {stats['sum_len']:>12}")
+    print(f"N50:      {stats['N50']:>8}")
+    print(f"N90:      {stats['N90']:>8}")
+    print(f"Max:      {stats['max_len']:>8}")
+    print(f"Min:      {stats['min_len']:>8}")
 
 
 def assembly_main():
     print("=== Megahit 组装程序 ===")
     assembly_process = FastQAssembly()
-    # 检查Megahit安装
-    system_utils.check_tool_installed("megahit")
-
+    # TODO 未来需要更灵活一些，给出参数
+    seqkit_params = ["-N", "50", "-N", "90", "-T"]
     try:
         while True:
             # 获取输入目录
@@ -58,7 +57,10 @@ def assembly_main():
             if output_dir:
                 print(f"megahit: 输出目录 {output_dir} 已经存在, 所以直接统计结果")
                 # 统计结果
-                assembly_process.stats()
+                lines = assembly_process.stats(seqkit_params)
+                # 解析输出
+                data = lines[1].split("\t")
+                print_stats_result(data)
                 return
         except ValueError:
             print("")  # assembly output directory must not be existed
@@ -93,21 +95,20 @@ def assembly_main():
             print("退出组装。")
             return
 
+        # 检查Megahit安装
+        system_utils.check_tool_installed("megahit")
+
         print("开始运行序列拼接...")
         assembly_process.start_megahit_assembly()
 
         # 统计结果
         if input("\n是否统计组装结果? (Y/N): ").upper() == "Y":
-            seqkit_cmd = assembly_process.build_stats_cmd()
-            print("\n运行统计命令:")
-            print(" ".join(seqkit_cmd))
-            lines = assembly_process.stats()
+            lines = assembly_process.stats(seqkit_params)
             # 解析输出
-            # headers = lines[0].split("\t")
             data = lines[1].split("\t")
             print_stats_result(data)
 
     except KeyboardInterrupt:
         print("\n用户中断, 退出组装程序。")
     except Exception as e:
-        raise RuntimeError("组装过程出错") from e
+        print(f"组装过程出错, {e}")
