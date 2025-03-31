@@ -89,7 +89,7 @@ def assembly_main():
 
         # 显示命令
         print("\n将运行的命令:")
-        print(" \\\n  ".join(assembly_process.get_megahit_cmd) + "\n")
+        print(" \\\n  ".join(assembly_process.get_megahit_cmd()) + "\n")
 
         # 确认运行
         if input("是否立即运行? (Y/N): ").upper() != "Y":
@@ -115,7 +115,7 @@ def assembly_main():
         print(f"组装过程出错, {e}")
 
 
-def assembly_contig_length():
+def assembly_contig_length(samples_dir: str):
     try:
         print("=== 组装结果contig长度分布图 ===")
     except KeyboardInterrupt:

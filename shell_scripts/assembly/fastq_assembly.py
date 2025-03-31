@@ -98,6 +98,21 @@ class FastQAssembly:
             self.logger.error(f"执行出错: {e}")
             raise Exception(f"执行出错: {e}") from e
 
+    def _progess_bar(self, columns, progress, progress_bar_on=False):
+        if progress_bar_on:
+            if progress < 0:
+                sys.stdout.write("\r" + " " * columns + "\r")
+                sys.stdout.flush()
+                return
+
+            bar_length = columns - 20
+            filled = int(round(bar_length * progress))
+            bar = "=" * filled + ">" + " " * (bar_length - filled - 1)
+
+            # 显示进度
+            sys.stdout.write(f"\r序列拼接进度 [{bar}]{progress*100:.0f}%")
+            sys.stdout.flush()
+
     def start_megahit_assembly(self, progress_bar_on=False):
         if not self._megahit_cmd:
             self.logger.error("megahit command doesn't exist")
@@ -113,85 +128,74 @@ class FastQAssembly:
                 bufsize=1,
             )
 
-            if progress_bar_on:
-                # 初始化进度条参数
-                total_k = None
-                current_k = None
-                processed_k = []
-                k_list = []
-                time_elapsed = None
+            # 初始化进度条参数
+            total_k = None
+            current_k = None
+            processed_k = []
+            k_list = []
+            time_elapsed = None
 
-                # 正则表达式模式
-                k_list_pattern = re.compile(r"k list:\s*(\d+(?:,\s*\d+)*)")
-                k_start_pattern = re.compile(
-                    r"Assemble contigs from SdBG for k\s*=\s*(\d+)"
-                )
-                time_pattern = re.compile(r"Time elapsed:\s+([\d.]+)")
+            # 正则表达式模式
+            k_list_pattern = re.compile(r"k list:\s*(\d+(?:,\s*\d+)*)")
+            k_start_pattern = re.compile(
+                r"Assemble contigs from SdBG for k\s*=\s*(\d+)"
+            )
+            time_pattern = re.compile(r"Time elapsed:\s+([\d.]+)")
 
-                # 获取终端宽度
-                columns = shutil.get_terminal_size().columns
+            # 获取终端宽度
+            columns = shutil.get_terminal_size().columns
 
-                while True:
-                    line = process.stdout.readline()
-                    if not line:
-                        if process.poll() is not None:
-                            break
-                        continue
-
-                    # 捕获k-list列表
-                    if "k list" in line:
-                        match = k_list_pattern.search(line)
-                        if match:
-                            k_list = [int(k.strip()) for k in match.group(1).split(",")]
-                            total_k = len(k_list) + 1
-                            print(f"Detected k list: {k_list}")
-
-                    # 捕获当前k值
-                    if "Assemble contigs" in line:
-                        match = k_start_pattern.search(line)
-                        if match:
-                            current_k = int(match.group(1))
-                            if current_k in k_list and current_k not in processed_k:
-                                processed_k.append(current_k)
-                                progress = len(processed_k) / total_k
-
-                                # 计算进度条
-                                bar_length = columns - 20
-                                filled = int(round(bar_length * progress))
-                                bar = (
-                                    "=" * filled + ">" + " " * (bar_length - filled - 1)
-                                )
-
-                                # 显示进度
-                                sys.stdout.write(
-                                    f"\r序列拼接进度 [{bar}]{progress*100:.0f}%"
-                                )
-                                sys.stdout.flush()
-
-                    if "Merging to output final contigs" in line:
-                        # 计算进度条
-                        bar_length = columns - 20
-                        filled = int(round(bar_length * 1))
-                        bar = "=" * filled + ">" + " " * (bar_length - filled - 1)
-                        # 显示进度
-                        sys.stdout.write(f"\r序列拼接进度 [{bar}]{1*100:.0f}%")
-                        sys.stdout.flush()
-                    # 完成时处理
-                    if "ALL DONE" in line:
-                        # 清除进度条
-                        sys.stdout.write("\r" + " " * columns + "\r")
-                        sys.stdout.flush()
-                        time_match = time_pattern.search(line)
-                        if time_match:
-                            time_elapsed = time_match.group(1)
-                        print("序列拼接进度 Done")
+            while True:
+                line = process.stdout.readline()
+                if not line:
+                    if process.poll() is not None:
                         break
+                    continue
+                self.logger.info(line)
+                # 计算进度条
+                self._progess_bar(columns, 0.01, progress_bar_on)
 
-                # 显示时间
-                if time_elapsed:
-                    print(
-                        f"\n总运行时间: {system_utils.format_time(float(time_elapsed))}"
-                    )
+                # 捕获k-list列表
+                if "k list" in line:
+                    match = k_list_pattern.search(line)
+                    if match:
+                        k_list = [int(k.strip()) for k in match.group(1).split(",")]
+                        total_k = len(k_list) + 1
+                        self.logger.debug(f"Detected k list: {k_list}")
+                        # 计算进度条
+                        self._progess_bar(columns, 0.05, progress_bar_on)
+
+                # 捕获当前k值
+                if "Assemble contigs" in line:
+                    match = k_start_pattern.search(line)
+                    if match:
+                        current_k = int(match.group(1))
+                        if current_k in k_list and current_k not in processed_k:
+                            processed_k.append(current_k)
+                            progress = len(processed_k) / total_k
+                            # 计算进度条
+                            self._progess_bar(columns, progress, progress_bar_on)
+
+                if "Merging to output final contigs" in line:
+                    # 计算进度条
+                    self._progess_bar(columns, 1, progress_bar_on)
+
+                # 完成时处理
+                if "ALL DONE" in line:
+                    # 清除进度条
+                    self._progess_bar(columns, -1, progress_bar_on)
+
+                    time_match = time_pattern.search(line)
+                    if time_match:
+                        time_elapsed = time_match.group(1)
+                    self.logger.info("序列拼接进度 Done")
+                    break
+
+            # 显示时间
+            if time_elapsed:
+                self.logger.info(
+                    f"\n总运行时间: {system_utils.format_time(float(time_elapsed))}"
+                )
         except subprocess.CalledProcessError as e:
             self.logger.error(f"\nMegahit序列拼接 - 执行出错: {e}")
             raise
