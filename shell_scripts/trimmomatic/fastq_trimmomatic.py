@@ -245,7 +245,6 @@ class FastQTrimmomatic:
 
     def run_trim_process(self):
         try:
-            # subprocess.run(self._build_cmd(), shell=False, check=True)  # nosec
             process = subprocess.Popen(
                 self._build_cmd(),
                 stdout=subprocess.PIPE,
@@ -273,3 +272,6 @@ class FastQTrimmomatic:
         except Exception as e:
             self.logger.error(f"\nTrimmomatic清洗 - 执行出错: {e}")
             raise
+
+    def get_all_fastq_files(self, samples_dir):
+        return system_utils.find_files(samples_dir, [".fastq.gz"], required=True)

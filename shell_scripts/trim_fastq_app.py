@@ -20,6 +20,51 @@ def select_adapters(adapters):
             print("请输入有效数字")
 
 
+def select_input_files(fastq_files, mode):
+    file_options = {}
+    file_name_list = []
+    for file_path in fastq_files:
+        file_name = system_utils.get_file_name(file_path)
+        file_options[file_name] = file_path
+        file_name_list.append(file_name)
+
+    sorted_file_names = sort_filenames(file_name_list)
+    index = 1
+    for file_name in sorted_file_names:
+        print(f"{index}: {file_name}")
+        index += 1
+
+    print(f"请输入文件序号 (1-{index-1}) ")
+    options = []
+    while True:
+        if mode != "PE":
+            if len(options) == 1:
+                break
+        try:
+            if len(options) == 0:
+                choice = int(input(f"请选择R1文件, 序号 (1-{index-1}): ").strip())
+            if len(options) == 1:
+                choice = int(input(f"请选择R2文件, 序号 (1-{index-1}): ").strip())
+            if len(options) > 1:
+                break
+
+            if choice < 1 or choice >= index:
+                print("所选序号不在范围内，请重选！\n")
+                continue
+
+            choice -= 1
+            if file_options[sorted_file_names[choice]] not in options:
+                options.append(file_options[sorted_file_names[choice]])
+                continue
+            if file_options[sorted_file_names[choice]] in options:
+                print("该序号已经选择过，请选其他\n")
+                continue
+        except ValueError as e:
+            print(f"错误: {str(e)}")
+
+    return options
+
+
 def build_custom_params():
     """构建自定义参数"""
     params_order = []
@@ -74,7 +119,20 @@ def build_custom_params():
     return [(k, params[k]) for k in params_order]
 
 
-def trimmomatic_main():
+def sort_filenames(filenames):
+    """按MT数字和R数字排序文件名"""
+
+    def sort_key(filename):
+        # 提取MT数字和R数字
+        parts = filename.split("_")
+        mt_num = int(parts[0][2:])  # 去掉'MT'后取数字
+        r_num = int(parts[2][1:].split(".")[0])  # 去掉'R'后取数字
+        return (mt_num, r_num)
+
+    return sorted(filenames, key=sort_key)
+
+
+def trimmomatic_main(samples_dir: str):
     print("\n=== Trimmomatic 质控程序 ===")
     trim_process = FastQTrimmomatic()
 
@@ -87,27 +145,18 @@ def trimmomatic_main():
                 break
             print("无效输入，请选择 SE 或 PE")
 
+        fastq_files = trim_process.get_all_fastq_files(samples_dir)
+
         # 输入文件路径
         if read_type == "PE":
-            r1 = system_utils.input_with_validation(
-                "R1文件绝对路径: ",
-                system_utils.validate_file,
-                "请确认文件存在且路径正确",
-            )
-            r2 = system_utils.input_with_validation(
-                "R2文件绝对路径: ",
-                system_utils.validate_file,
-                "请确认文件存在且路径正确",
-            )
-            trim_process.set_forword_file(r1)
-            trim_process.set_reverse_file(r2)
+            file_path = select_input_files(fastq_files, read_type)
+            print(f"r1: {file_path[0]}, r2: {file_path[1]}")
+            trim_process.set_forword_file(file_path[0])
+            trim_process.set_reverse_file(file_path[1])
         else:
-            se = system_utils.input_with_validation(
-                "FASTQ文件绝对路径: ",
-                system_utils.validate_file,
-                "请确认文件存在且路径正确",
-            )
-            trim_process.set_single_end_file(se)
+            file_path = select_input_files(fastq_files, read_type)
+            print(f"r1: {file_path[0]}")
+            trim_process.set_single_end_file(file_path[0])
 
         # 接头参数
         adapter_file = select_adapters(trim_process.get_adapter_options())
@@ -167,4 +216,4 @@ def trimmomatic_main():
     except KeyboardInterrupt:
         print("\n用户中断, 退出清洗程序。")
     except Exception as e:
-        raise RuntimeError("清洗过程出错") from e
+        raise RuntimeError(f"清洗过程出错\n{e}") from e
