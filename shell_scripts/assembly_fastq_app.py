@@ -101,6 +101,7 @@ def assembly_main():
 
         print("开始运行序列拼接...")
         assembly_process.start_megahit_assembly(True)
+        print("序列拼接进度 Done")
 
         # 统计结果
         if input("\n是否统计组装结果? (Y/N): ").upper() == "Y":
@@ -117,8 +118,27 @@ def assembly_main():
 
 def assembly_contig_length(samples_dir: str):
     try:
-        print("=== 组装结果contig长度分布图 ===")
+        print("\n=== 组装结果contig长度分布图 ===")
+
+        # 读取柱状图所需的bin参数和横坐标最大值
+        bins = system_utils.input_positive_int(
+            "请输入直方图的bin数量, 横坐标连续区间个数(推荐100): ", 49
+        )
+        max_x = system_utils.input_positive_int(
+            "横坐标最大值(推荐10000): ", 5000
+        )  # 横轴最大值不可小于5000
+
+        assembly_process = FastQAssembly()
+        lengths = assembly_process.get_contig_lengths(samples_dir, max_x)
+        if not lengths:
+            return
+        # print(f"Total contigs: {len(lengths)}")
+        print("\n开始创建直方图...")
+        chart_file_directory = assembly_process.plot_contig_distribution(
+            lengths, bins, samples_dir
+        )
+        print(f"生成样品组装序列长度分布图, 查看目录: {chart_file_directory}")
     except KeyboardInterrupt:
-        print("\n用户中断, 退出生成柱状图(contig distribution)程序。")
+        print("\n用户中断, 退出生成样品组装序列长度分布图程序。")
     except Exception as e:
-        print(f"生成柱状图(contig distribution)过程出错, {e}")
+        print(f"生成样品组装序列长度分布图过程出错, {e}")

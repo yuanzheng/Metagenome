@@ -1,3 +1,4 @@
+import glob
 import logging
 import os
 import re  # nosec
@@ -5,7 +6,10 @@ import shutil
 import subprocess  # nosec B404: 已通过安全封装处理
 import sys
 
+import matplotlib.pyplot as plt
+import numpy as np
 import utils.system_utils as system_utils
+from Bio import SeqIO
 
 
 class FastQAssembly:
@@ -105,7 +109,7 @@ class FastQAssembly:
                 sys.stdout.flush()
                 return
 
-            bar_length = columns - 20
+            bar_length = columns - 100
             filled = int(round(bar_length * progress))
             bar = "=" * filled + ">" + " " * (bar_length - filled - 1)
 
@@ -153,7 +157,7 @@ class FastQAssembly:
                     continue
                 self.logger.info(line)
                 # 计算进度条
-                self._progess_bar(columns, 0.01, progress_bar_on)
+                self._progess_bar(columns, 0, progress_bar_on)
 
                 # 捕获k-list列表
                 if "k list" in line:
@@ -194,7 +198,7 @@ class FastQAssembly:
             # 显示时间
             if time_elapsed:
                 self.logger.info(
-                    f"\n总运行时间: {system_utils.format_time(float(time_elapsed))}"
+                    f"总运行时间: {system_utils.format_time(float(time_elapsed))}"
                 )
         except subprocess.CalledProcessError as e:
             self.logger.error(f"\nMegahit序列拼接 - 执行出错: {e}")
@@ -202,3 +206,57 @@ class FastQAssembly:
         except Exception as e:
             self.logger.error(f"\nMegahit序列拼接 - 执行出错: {e}")
             raise
+
+    def get_contig_lengths(self, root_directory, max_x=10000):
+        if not root_directory:
+            raise ValueError("root directory 缺失, 请给出final.contigs.fa所在的父目录")
+
+        # 构造查找模式：在每个样本文件夹下寻找以"trimmedReads_assembly"结尾的文件夹中的final.contigs.fa文件
+        pattern = os.path.join(
+            root_directory, "*", "*trimmedReads_assembly", "final.contigs.fa"
+        )
+        file_list = glob.glob(pattern)
+        if not file_list:
+            self.logger.error("没有找到任何符合条件的final.contigs.fa文件!")
+            raise ValueError(
+                f"在{root_directory} 中没有找到任何符合条件的final.contigs.fa文件!"
+            )
+
+        lengths = []
+        for file in file_list:
+            self.logger.debug(f"What file is involved, {file}")
+            for record in SeqIO.parse(file, "fasta"):
+                seq_length = len(record.seq)
+                if seq_length >= int(max_x):
+                    seq_length = int(max_x)
+                lengths.append(seq_length)
+        return lengths
+
+    def plot_contig_distribution(
+        self,
+        contig_lengths,
+        bins,
+        root_directory,
+        output_file="contig_length_distribution.png",
+    ):
+        self.logger.info("开始创建直方图...")
+        counts, bin_edges = np.histogram(contig_lengths, bins=bins, density=True)
+        bin_centers = (bin_edges[:-1] + bin_edges[1:]) / 2
+
+        plt.figure(figsize=(10, 6))
+        plt.bar(
+            bin_centers,
+            counts,
+            width=(bin_edges[1] - bin_edges[0]),
+            edgecolor="black",
+            alpha=0.7,
+            color="red",
+        )
+        plt.xlabel("Length (bp)")
+        plt.ylabel("Density")
+        plt.title("Distribution of Length")
+        plt.tight_layout()
+        output_file_path = os.path.join(root_directory, output_file)
+        plt.savefig(output_file_path, dpi=300, bbox_inches="tight")
+        self.logger.info(f"Saved to {output_file_path}")
+        return output_file_path

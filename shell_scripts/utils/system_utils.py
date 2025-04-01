@@ -85,16 +85,16 @@ def input_with_validation(prompt, validator, error_msg="无效输入，请重试
             print(error_msg)
 
 
-def input_positive_int(prompt):
+def input_positive_int(prompt, min_number=0):
     """输入正整数"""
     while True:
         try:
             value = int(input(prompt))
-            if value > 0:
+            if value > min_number:
                 return value
-            print("必须输入正整数")
+            print(f"必须输入 > {min_number}整数")
         except ValueError:
-            print("无效的输入，请输入整数")
+            print(f"无效的输入，请输入 > {min_number}整数")
 
 
 def input_str(prompt):
