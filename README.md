@@ -17,10 +17,10 @@ Workflow
 Usage
 -----
 
-### FASTQ Data Analysis
+#### FASTQ Data Analysis
 ![image](https://github.com/user-attachments/assets/c98d2056-f0d1-4e9f-ab7c-4a68622c86a8)
 
-### FASTQC Report
+#### FASTQC Report
 ![image](https://github.com/user-attachments/assets/e6121cf2-7091-41e9-8b83-e0a960ca6c8d)
 
 ![image](https://github.com/user-attachments/assets/a4b726fe-4fb4-42cc-802b-a2bc3ab64e6f)
