@@ -1,5 +1,8 @@
 Under construction now
 
+METAGENOME
+==========
+METAGENOME is a bioinformatic desktop application. It integrates several third-party tools to process and analyze the metagenomic sequencing data. 
 
 Workflow
 ========
@@ -22,3 +25,11 @@ Usage
 
 ![image](https://github.com/user-attachments/assets/a4b726fe-4fb4-42cc-802b-a2bc3ab64e6f)
 
+
+References
+==========
+- https://github.com/lh3/readfq
+- https://github.com/s-andrews/FastQC
+- http://www.usadellab.org/cms/index.php?page=trimmomatic
+- https://github.com/usadellab/Trimmomatic
+- https://github.com/voutcn/megahit
