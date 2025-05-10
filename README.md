@@ -1,15 +1,23 @@
 Under construction now
 
-METAGENOME
-==========
+<h1 align="center">METAGENOME</h1>
+
+<p align="center">
+  <a href="https://anaconda.org/bioconda/megahit">
+    <img src="https://img.shields.io/conda/dn/bioconda/megahit.svg?style=flat-square&label=BioConda%20install" alt="BioConda Install">
+  </a>
+  <a href="https://codecov.io/gh/voutcn/megahit">
+    <img src="https://img.shields.io/codecov/c/github/voutcn/megahit?style=flat-square" alt="codecov">
+  </a>
+  <a href="#下载发行版">
+    <img src="https://img.shields.io/github/downloads/voutcn/megahit/total?style=flat-square" alt="Downloads">
+  </a>
+</p>
+
 METAGENOME is a bioinformatic desktop application. It integrates several third-party tools to process and analyze the metagenomic sequencing data. 
 
 Workflow
-========
-[![BioConda Install](https://img.shields.io/conda/dn/bioconda/megahit.svg?style=flat-square&label=BioConda%20install)](https://anaconda.org/bioconda/megahit)
-[![Downloads](https://img.shields.io/github/downloads/voutcn/megahit/total?style=flat-square)](https://github.com/voutcn/megahit/releases)
-[![Build Status](https://img.shields.io/travis/voutcn/megahit?style=flat-square)](https://travis-ci.org/voutcn/megahit)
-[![codecov](https://img.shields.io/codecov/c/github/voutcn/megahit?style=flat-square)](https://codecov.io/gh/voutcn/megahit)
+-----
 
 ![image](https://github.com/user-attachments/assets/c059ec9c-2e19-44a4-a8a2-7ea7d17bfba2)
 
